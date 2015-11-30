@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+<!-- class path -->
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            label="SFast Action Set"
+            visible="true"
+            id="com.cbx.SFast.actionSet">
+         <menu
+               label="SFas&amp;t"
+               id="sfastMenu">
+            <separator
+                  name="sfastGroup">
+            </separator>
+         </menu>
+         <action
+               label="&amp;Settle build path"
+               icon="icons/classpath.png"
+               class="com.cbx.sfast.actions.ClassPathAction"
+               tooltip="Settle build path."
+               menubarPath="sfastMenu/sfastGroup"
+               toolbarPath="sfastGroup"
+               id="com.cbx.sfast.actions.ClassPathAction">
+         </action>
+         <action
+               label="Ant &amp;Core"
+               icon="icons/core.png"
+               class="com.cbx.sfast.actions.AntCoreAction"
+               tooltip="Ant Core."
+               menubarPath="sfastMenu/sfastGroup"
+               toolbarPath="sfastGroup"
+               id="com.cbx.sfast.actions.AntCoreAction">
+         </action>
+         <action
+               label="Ant &amp;UI"
+               icon="icons/ui.png"
+               class="com.cbx.sfast.actions.AntUIAction"
+               tooltip="Ant UI."
+               menubarPath="sfastMenu/sfastGroup"
+               toolbarPath="sfastGroup"
+               id="com.cbx.sfast.actions.AntUIAction">
+         </action>
+         <action
+               label="Ant &amp;General"
+               icon="icons/general.png"
+               class="com.cbx.sfast.actions.AntGeneralAction"
+               tooltip="Ant General."
+               menubarPath="sfastMenu/sfastGroup"
+               toolbarPath="sfastGroup"
+               id="com.cbx.sfast.actions.AntGeneralAction">
+         </action>
+         <action
+               label="&amp;Run biz"
+               icon="icons/cbx.png"
+               class="com.cbx.sfast.actions.RunBizAction"
+               tooltip="Run biz."
+               menubarPath="sfastMenu/sfastGroup"
+               toolbarPath="sfastGroup"
+               id="com.cbx.sfast.actions.RunBizAction">
+         </action>
+      </actionSet>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.commands">
+
+<!-- open in explorer -->
+      <command
+            name="Open in explorer"
+            categoryId="org.eclipse.ui.category.window"
+            id="com.cbx.sfast.actions.commands.openInExplorerCommand">
+      </command>
+
+<!-- open file from clipboard -->
+      <command
+            name="Open file from clipboard"
+            categoryId="org.eclipse.ui.category.window"
+            id="com.cbx.sfast.actions.commands.openFileFromClipboardCommand">
+      </command>
+
+<!-- open in terminal -->
+      <command
+            name="Open in Terminal"
+            categoryId="org.eclipse.ui.category.window"
+            id="com.cbx.sfast.actions.commands.openInTerminalCommand">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+
+<!-- open in explorer -->
+      <handler
+            commandId="com.cbx.sfast.actions.commands.openInExplorerCommand"
+            class="com.cbx.sfast.actions.OpenExplorerHandler">
+      </handler>
+
+<!-- open file from clipboard -->
+      <handler
+            commandId="com.cbx.sfast.actions.commands.openFileFromClipboardCommand"
+            class="com.cbx.sfast.actions.OpenFileFromClipboardHandler">
+      </handler>
+
+<!-- open in terminal -->
+      <handler
+            commandId="com.cbx.sfast.actions.commands.openInTerminalCommand"
+            class="com.cbx.sfast.actions.OpenTerminalHandler">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+
+<!-- open file from clipboard -->
+      <key
+            commandId="com.cbx.sfast.actions.commands.openFileFromClipboardCommand"
+            sequence="CTRL+SHIFT+V"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+   </extension>
+
+
+   <extension
+         point="org.eclipse.ui.menus">
+
+<!-- open in explorer -->
+      <menuContribution
+            locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+         <separator
+               name="com.cbx.sfast.actions.separator1">
+         </separator>
+         <command
+               commandId="com.cbx.sfast.actions.commands.openInExplorerCommand"
+               icon="icons/fldr_obj.gif"
+               id="com.cbx.sfast.actions.menus.openInExplorerCommand"
+               mnemonic="%command.mnemonic">
+            <visibleWhen>
+               <iterate
+                     ifEmpty="false">
+                  <or>
+                     <instanceof
+                           value="org.eclipse.core.resources.IResource">
+                     </instanceof>
+                     <instanceof
+                           value="org.eclipse.jdt.core.IJavaElement">
+                     </instanceof>
+                     <instanceof
+                           value="org.eclipse.team.ui.synchronize.ISynchronizeModelElement">
+                     </instanceof>
+                  </or>
+               </iterate>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+
+<!-- open in terminal -->
+      <menuContribution
+            locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+         <separator
+               name="com.cbx.sfast.actions.separator1">
+         </separator>
+         <command
+               commandId="com.cbx.sfast.actions.commands.openInTerminalCommand"
+               icon="icons/cmd.png"
+               id="com.cbx.sfast.actions.menus.openInTerminalCommand"
+               mnemonic="%command.mnemonic">
+            <visibleWhen>
+               <iterate
+                     ifEmpty="false">
+                  <or>
+                     <instanceof
+                           value="org.eclipse.core.resources.IResource">
+                     </instanceof>
+                     <instanceof
+                           value="org.eclipse.jdt.core.IJavaElement">
+                     </instanceof>
+                     <instanceof
+                           value="org.eclipse.team.ui.synchronize.ISynchronizeModelElement">
+                     </instanceof>
+                  </or>
+               </iterate>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.cbx.sfast.preferences.SFastPreferencePage"
+            id="com.cbx.sfast.preferences.SFastPreferencePage"
+            name="SFast">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="com.cbx.sfast.preferences.PreferenceInitializer">
+      </initializer>
+   </extension>
+
+
+</plugin>
