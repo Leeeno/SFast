@@ -3,14 +3,17 @@ package com.cbx.sfast.actions;
 import java.io.File;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
-import com.cbx.sfast.utilities.CbxCommand;
+import sfast.Activator;
+
+import com.cbx.sfast.preferences.PreferenceConstants;
+import com.cbx.sfast.utilities.CbxUtil;
 
 /**
  * Our sample action implements workbench action delegate. The action proxy will
@@ -24,8 +27,9 @@ public class RunBizAction implements IWorkbenchWindowActionDelegate {
 
 	private static String bizpath;
 
-
 	private IWorkbenchWindow window;
+
+	IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 
 	/**
 	 * The constructor.
@@ -41,28 +45,73 @@ public class RunBizAction implements IWorkbenchWindowActionDelegate {
 	 */
 	public void run(IAction action) {
 		try {
-			IProject[] projects = getProjects();
-			for (IProject project : projects) {
+
+			for (IProject project : CbxUtil.projects) {
 				if ("CBX_Business".equals(project.getName())) {
 					bizpath = project.getLocationURI().getPath() + "/";
+					bizpath = bizpath.substring(1);
 				}
 			}
+			CbxUtil.out.println(this.getClass() + "Line 57\t" + "bizpath:\t"
+					+ bizpath);
 			if (bizpath == null) {
+				MessageDialog.openInformation(window.getShell(), "Error",
+						"未找到biz项目");
 				return;
 			}
-			final String debugString = "@echo off\r\nsetlocal\r\n"
-					+ "set ANT_OPTS=-Xdebug -Xmx1024m -XX:MaxPermSize=3072m -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,address=4000,server=y,suspend=n"
-					+ "\r\nant jetty.run 2> error.log\r\nendlocal";
-			final File file = new File(bizpath, "jetty-debug.cmd");
-			CbxCommand.WriteFile(file, debugString);
+			boolean rewriteJetty = store
+					.getBoolean(PreferenceConstants.P_REWRITE_JETTY_CMD);
 
-			Runtime.getRuntime().exec(
-					"cmd /c cd " + bizpath + " & start jetty-debug.cmd");
-
+			if (rewriteJetty) {
+				final String jettyScript = store
+						.getString(PreferenceConstants.P_JETTY_SCRIPT);
+				final File file = new File(bizpath, "jetty-debug.cmd");
+				CbxUtil.WriteFile(file, jettyScript);
+			}
+			WorkThread work = new WorkThread();
+			work.start();
 		} catch (Exception e) {
+			CbxUtil.out.println(this.getClass() + "Line 75\t" + "err:---"
+					+ e.getMessage());
+		}
+	}
 
-			MessageDialog.openInformation(window.getShell(), "Error",
-					e.getMessage());
+	class WorkThread extends Thread {
+		@Override
+		public void run() {
+			synchronized (new Object()) {
+
+				try {
+					CbxUtil.out.println(this.getClass() + "Line 85\t" + "线程"
+							+ Thread.currentThread().getName() + "开始运行");
+					// Thread.currentThread().sleep(100);
+
+					if (store.getBoolean(PreferenceConstants.P_ALWAYS_ANT_CORE)) {
+						CbxUtil.out.println(this.getClass() + "Line 90\t"
+								+ "ant core");
+						CbxUtil.antCore(window);
+					}
+
+					if (store.getBoolean(PreferenceConstants.P_ALWAYS_ANT_UI)) {
+						CbxUtil.out.println(this.getClass() + "Line 96\t"
+								+ "ant ui");
+						CbxUtil.antUI(window);
+					}
+
+					if (store.getBoolean(PreferenceConstants.P_ALWAYS_ANT_GENERAL)) {
+						CbxUtil.out.println(this.getClass() + "Line 102\t"
+								+ "ant general");
+						CbxUtil.antGeneral(window);
+					}
+					CbxUtil.runBiz(bizpath);
+					CbxUtil.out.println(this.getClass() + "Line 107\t" + "线程"
+							+ Thread.currentThread().getName() + "运行完毕");
+				} catch (Exception e) {
+					CbxUtil.out.println(this.getClass() + "Line 110\t"
+							+ "err:---" + e.getMessage());
+				}
+
+			}
 		}
 	}
 
@@ -95,9 +144,4 @@ public class RunBizAction implements IWorkbenchWindowActionDelegate {
 		this.window = window;
 	}
 
-	public IProject[] getProjects() {
-		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot()
-				.getProjects();
-		return projects;
-	}
 }

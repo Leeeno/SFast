@@ -46,11 +46,11 @@ public class OpenFileFromClipboardHandler extends AbstractHandler {
 			File fileToOpen = null;
 			if (filePaths.length == 1) {
 				fileToOpen = new File(filePath);
-			} else if (filePaths.length == 3 || filePaths.length == 4) {
+			} else if (filePaths.length >= 2) {
 				IProject[] projects = getProjects();
 				IFile file = null;
 				for (IProject project : projects) {
-					file = project.getFile(filePaths[filePaths.length-1].replace("\t", "") + "/" + filePaths[0].replace("\t", ""));
+					file = project.getFile(filePaths[1].replace("\t", "") + "/" + filePaths[0].replace("\t", ""));
 					fileToOpen = new File(file.getLocationURI().getPath());
 					if (!(fileToOpen.exists() && fileToOpen.isFile())) {
 						fileToOpen = null;
