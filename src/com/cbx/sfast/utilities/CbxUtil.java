@@ -21,17 +21,21 @@ import org.eclipse.ui.console.MessageConsoleStream;
 public class CbxUtil {
 
 	private static String generalpath;
-	private static String bizpath;
+	public static String bizpath;
 	private static String uipath;
 	private static String corepath;
 
-	private static String generallibpath = generalpath + "lib/runtime/";
-	private static String bizlibpath = bizpath + "src/main/webapp/WEB-INF/lib/";
-	private static String uilibpath = uipath + "lib/runtime/";
+	private static String generallibpath = "lib/runtime/";
+	private static String bizlibpath = "src/main/webapp/WEB-INF/lib/";
+	private static String uilibpath = "lib/runtime/";
 
 	public static MessageConsoleStream out = findConsole().newMessageStream();
 
 	public static IProject[] projects = getProjects();
+
+	static{
+		getProjectsPath();
+	}
 
 	public static void runBiz(String _bizpath) throws IOException {
 		out.println("util runBiz Line 34\t" + "exec:\t" + "cmd /c cd "
@@ -45,154 +49,149 @@ public class CbxUtil {
 		MessageDialog.openInformation(shell, titile, message);
 	}
 
-	public static void antGeneral(IWorkbenchWindow window) {
+	public static boolean antGeneral(IWorkbenchWindow window) {
 		try {
-			for (IProject project : projects) {
-				if ("CBX_General".equals(project.getName())) {
-					generalpath = project.getLocationURI().getPath() + "/";
-					generalpath = generalpath.substring(1);
-				} else if ("CBX_Business".equals(project.getName())) {
-					bizpath = project.getLocationURI().getPath() + "/";
-					bizpath = bizpath.substring(1);
-				}
-			}
 
 			if (bizpath == null || generalpath == null) {
-				CbxUtil.Show(window.getShell(), "Error", "路径未找到");
-				return;
+				Show(window.getShell(), "Error", "路径未找到");
+				return false;
 			}
 			final Process ps = Runtime.getRuntime().exec(
 					String.format("cmd /c cd %s & ant jar", generalpath));
-			out.println("util antCore Line 63\t"
-					+ loadStream(ps.getInputStream()));
-			out.println("util antCore Line 64\t" + "err:---"
-					+ loadStream(ps.getErrorStream()));
 
-			final File releaseJar = CbxUtil.ReleaseFile(generalpath,
-					"cbx-general");
-			if (releaseJar == null) {
-				CbxUtil.Show(window.getShell(), "Error", "Build failed");
-				return;
+			String msg = loadStream(ps.getInputStream());
+			if (msg.contains("BUILD FAILED")) {
+				out.println("util antGeneral Line 68\t"
+						+ loadStream(ps.getInputStream()));
+				return false;
+			}
+			String errmsg = loadStream(ps.getErrorStream());
+			if (errmsg != "" || errmsg != null) {
+				out.println("util antGeneral Line 74\t" + "err:---"
+						+ loadStream(ps.getErrorStream()));
 			}
 
-			final boolean isDelete = CbxUtil.DeleteFile(bizlibpath, "cbx-core");
+			final File releaseJar = ReleaseFile(generalpath, "cbx-general");
+			if (releaseJar == null) {
+				Show(window.getShell(), "Error", "Build failed");
+				return false;
+			}
+
+			final boolean isDelete = DeleteFile(bizpath + bizlibpath,
+					"cbx-general");
 
 			if (!isDelete) {
-				CbxUtil.Show(window.getShell(), "Error",
-						"未能删除jar包----------------");
-				return;
+				Show(window.getShell(), "Error", "未能删除jar包");
+				return false;
 			}
 
-			CbxUtil.CopyTo(releaseJar,
-					new File(bizlibpath, releaseJar.getName()));
+			CopyTo(releaseJar,
+					new File(bizpath + bizlibpath, releaseJar.getName()));
 		} catch (Exception e) {
-			out.println("util antCore Line 84\t" + "err:---" + e.getMessage());
+			out.println("util antGeneral Line 84\t" + "err:---"
+					+ e.getMessage());
 		}
+		return true;
 	}
 
-	public static void antUI(IWorkbenchWindow window) {
+	public static boolean antUI(IWorkbenchWindow window) {
 		try {
-			for (IProject project : projects) {
-				if ("CBX_General".equals(project.getName())) {
-					generalpath = project.getLocationURI().getPath() + "/";
-					generalpath = generalpath.substring(1);
-				} else if ("CBX_Business".equals(project.getName())) {
-					bizpath = project.getLocationURI().getPath() + "/";
-					bizpath = bizpath.substring(1);
-				} else if ("CBX_UI".equals(project.getName())) {
-					uipath = project.getLocationURI().getPath() + "/";
-					uipath = uipath.substring(1);
-				}
-			}
 
 			if (bizpath == null || generalpath == null || uipath == null) {
 				Show(window.getShell(), "Error", "路径未找到");
-				return;
+				return false;
 			}
 			final Process ps = Runtime.getRuntime().exec(
 					String.format("cmd /c cd %s & ant jar", uipath));
-			out.println("util antCore Line 111\t"
-					+ loadStream(ps.getInputStream()));
-			out.println("util antCore Line 113\t" + "err:---"
-					+ loadStream(ps.getErrorStream()));
+
+			String msg = loadStream(ps.getInputStream());
+			if (msg.contains("BUILD FAILED")) {
+				out.println("util antUI Line 117\t"
+						+ loadStream(ps.getInputStream()));
+				return false;
+			}
+			String errmsg = loadStream(ps.getErrorStream());
+			if (errmsg != "" || errmsg != null) {
+				out.println("util antUI Line 122\t" + "err:---"
+						+ loadStream(ps.getErrorStream()));
+			}
 
 			final File releaseJar = ReleaseFile(uipath, "cbx-ui");
 			if (releaseJar == null) {
 				Show(window.getShell(), "Error", "Build failed");
-				return;
+				return false;
 			}
 
-			final boolean isDelete1 = DeleteFile(bizlibpath, "cbx-ui");
-			final boolean isDelete2 = DeleteFile(generallibpath, "cbx-ui");
+			final boolean isDelete1 = DeleteFile(bizpath + bizlibpath, "cbx-ui");
+			final boolean isDelete2 = DeleteFile(generalpath + generallibpath,
+					"cbx-ui");
 			if (!(isDelete1 && isDelete2)) {
-				Show(window.getShell(), "Error", "未能删除jar包----------------");
-				return;
+				Show(window.getShell(), "Error", "未能删除jar包");
+				return false;
 			}
 
-			CopyTo(releaseJar, new File(generallibpath, releaseJar.getName()));
-			CopyTo(releaseJar, new File(bizlibpath, releaseJar.getName()));
+			CopyTo(releaseJar, new File(generalpath + generallibpath,
+					releaseJar.getName()));
+			CopyTo(releaseJar,
+					new File(bizpath + bizlibpath, releaseJar.getName()));
 
 		} catch (Exception e) {
-			out.println("util antCore Line 133\t" + "err:---" + e.getMessage());
+			out.println("util antUI Line 133\t" + "err:---" + e.getMessage());
 		}
+		return true;
 	}
 
-	public static void antCore(IWorkbenchWindow window) {
+	public static boolean antCore(IWorkbenchWindow window) {
 		try {
-			for (IProject project : projects) {
-				if ("CBX_General".equals(project.getName())) {
-					generalpath = project.getLocationURI().getPath() + "/";
-					generalpath = generalpath.substring(1);
-				} else if ("CBX_Business".equals(project.getName())) {
-					bizpath = project.getLocationURI().getPath() + "/";
-					bizpath = bizpath.substring(1);
-				} else if ("CBX_UI".equals(project.getName())) {
-					uipath = project.getLocationURI().getPath() + "/";
-					uipath = uipath.substring(1);
-				} else if ("CBX_Core".equals(project.getName())) {
-					corepath = project.getLocationURI().getPath() + "/";
-					corepath = corepath.substring(1);
-				}
-			}
 
-			out.println("util antCore Line 155\t" + "bizpath:\t" + bizpath);
-			out.println("util antCore Line 156\t" + "generalpath:\t"
-					+ generalpath);
-			out.println("util antCore Line 157\t" + "uipath:\t" + uipath);
-			out.println("util antCore Line 158\t" + "corepath:\t" + corepath);
 			if (bizpath == null || generalpath == null || uipath == null
 					|| corepath == null) {
 				Show(window.getShell(), "Error", "路径未找到");
-				return;
+				return false;
 			}
 			final Process ps = Runtime.getRuntime().exec(
 					String.format("cmd /c cd %s & ant jar", corepath));
-			out.println("util antCore Line 167\t"
-					+ loadStream(ps.getInputStream()));
-			out.println("util antCore Line 168\t" + "err:---"
-					+ loadStream(ps.getErrorStream()));
+
+			String msg = loadStream(ps.getInputStream());
+			if (msg.contains("BUILD FAILED")
+					&& !msg.contains(" Directory does not exist")) {
+				out.println("util antCore Line 186\t"
+						+ loadStream(ps.getInputStream()));
+				return false;
+			}
+			String errmsg = loadStream(ps.getErrorStream());
+			if (errmsg != "" || errmsg != null) {
+				out.println("util antCore Line 192\t" + "err:---"
+						+ loadStream(ps.getErrorStream()));
+			}
 
 			final File releaseJar = ReleaseFile(corepath, "cbx-core");
 			if (releaseJar == null) {
 				Show(window.getShell(), "Error", "Build failed");
-				return;
+				return false;
 			}
 
-			final boolean isDelete1 = DeleteFile(bizlibpath, "cbx-core");
-			final boolean isDelete2 = DeleteFile(generallibpath, "cbx-core");
-			final boolean isDelete3 = DeleteFile(uilibpath, "cbx-core");
+			final boolean isDelete1 = DeleteFile(bizpath + bizlibpath,
+					"cbx-core");
+			final boolean isDelete2 = DeleteFile(generalpath + generallibpath,
+					"cbx-core");
+			final boolean isDelete3 = DeleteFile(uipath + uilibpath, "cbx-core");
 			if (!(isDelete1 && isDelete2 && isDelete3)) {
 				Show(window.getShell(), "Error", "未能删除jar包");
-				return;
+				return false;
 			}
 
-			CopyTo(releaseJar, new File(generallibpath, releaseJar.getName()));
-			CopyTo(releaseJar, new File(uilibpath, releaseJar.getName()));
-			CopyTo(releaseJar, new File(bizlibpath, releaseJar.getName()));
+			CopyTo(releaseJar,
+					new File(uipath + uilibpath, releaseJar.getName()));
+			CopyTo(releaseJar, new File(generalpath + generallibpath,
+					releaseJar.getName()));
+			CopyTo(releaseJar,
+					new File(bizpath + bizlibpath, releaseJar.getName()));
 
 		} catch (Exception e) {
-			out.println("util antCore Line 191\t" + "err:---" + e.getMessage());
+			out.println("util antCore Line 204\t" + "err:---" + e.getMessage());
 		}
+		return true;
 	}
 
 	public static MessageConsole findConsole() {
@@ -202,7 +201,7 @@ public class CbxUtil {
 		for (int i = 0; i < existing.length; i++)
 			if ("Console".equals(existing[i].getName()))
 				return (MessageConsole) existing[i];
-		// no console found, so create a new one
+
 		MessageConsole myConsole = new MessageConsole("Console", null);
 		conMan.addConsoles(new IConsole[] { myConsole });
 		return myConsole;
@@ -220,7 +219,6 @@ public class CbxUtil {
 
 	public static File ReleaseFile(final String path, final String filename)
 			throws Exception {
-
 		final File release = new File(path + "release");
 		final File[] files = release.listFiles();
 		if (files != null) {
@@ -231,7 +229,10 @@ public class CbxUtil {
 				} else {
 					if (fi.getName().contains(filename)
 							&& fi.getName().contains(".jar")) {
+						out.println("util ReleaseFile Line 244\tfound: "
+								+ fi.getAbsolutePath());
 						return fi;
+					} else {
 					}
 				}
 			}
@@ -250,8 +251,14 @@ public class CbxUtil {
 							+ fi.getAbsolutePath());
 				} else {
 					if (fi.getName().contains(filename)) {
+
 						if (!fi.delete()) {
+							out.println("util DeleteFile Line 267\tcannot delete "
+									+ fi.getAbsolutePath());
 							return false;
+						} else {
+							out.println("util DeleteFile Line 272\tdeleting "
+									+ fi.getAbsolutePath());
 						}
 					}
 				}
@@ -263,6 +270,9 @@ public class CbxUtil {
 	@SuppressWarnings("resource")
 	public static void CopyTo(final File f1, final File f2) throws Exception {
 		int byteread = 0;
+
+		out.println("util CopyTo Line 286\tcopy file: " + f1.getAbsolutePath()
+				+ " to " + f2.getAbsolutePath());
 		final InputStream inStream = new FileInputStream(f1);
 		final FileOutputStream fs = new FileOutputStream(f2);
 		final byte[] buffer = new byte[1444];
@@ -273,14 +283,15 @@ public class CbxUtil {
 	}
 
 	public static void WriteFile(final File file, final String content) {
-
 		try (FileOutputStream fop = new FileOutputStream(file)) {
 
 			if (!file.exists()) {
 				file.createNewFile();
 			}
 
-			// get the content in bytes
+			out.println("util WriteFile Line 305\twrite file: "
+					+ file.getAbsolutePath());
+
 			final byte[] contentInBytes = content.getBytes();
 
 			fop.write(contentInBytes);
@@ -289,6 +300,24 @@ public class CbxUtil {
 
 		} catch (final IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	public static void getProjectsPath() {
+		for (IProject project : projects) {
+			if ("CBX_General".equals(project.getName())) {
+				generalpath = project.getLocationURI().getPath() + "/";
+				generalpath = generalpath.substring(1);
+			} else if ("CBX_Business".equals(project.getName())) {
+				bizpath = project.getLocationURI().getPath() + "/";
+				bizpath = bizpath.substring(1);
+			} else if ("CBX_UI".equals(project.getName())) {
+				uipath = project.getLocationURI().getPath() + "/";
+				uipath = uipath.substring(1);
+			} else if ("CBX_Core".equals(project.getName())) {
+				corepath = project.getLocationURI().getPath() + "/";
+				corepath = corepath.substring(1);
+			}
 		}
 	}
 
