@@ -151,14 +151,8 @@
                </iterate>
             </visibleWhen>
          </command>
-      </menuContribution>
 
 <!-- open in terminal -->
-      <menuContribution
-            locationURI="popup:org.eclipse.ui.popup.any?after=additions">
-         <separator
-               name="com.cbx.sfast.actions.separator1">
-         </separator>
          <command
                commandId="com.cbx.sfast.actions.commands.openInTerminalCommand"
                icon="icons/cmd.png"
@@ -182,6 +176,7 @@
             </visibleWhen>
          </command>
       </menuContribution>
+
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">

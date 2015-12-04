@@ -32,7 +32,28 @@ public class AntUIAction implements IWorkbenchWindowActionDelegate {
 	 * @see IWorkbenchWindowActionDelegate#run
 	 */
 	public void run(IAction action) {
-		CbxUtil.antUI(window);
+		WorkThread work = new WorkThread();
+		work.start();
+	}
+
+	class WorkThread extends Thread {
+		@Override
+		public void run() {
+			synchronized (new Object()) {
+
+				try {
+					CbxUtil.log("AntUIAction Line 45\t" + "线程"
+							+ Thread.currentThread().getName() + "开始运行");
+					CbxUtil.antUI(window);
+
+					CbxUtil.log("AntUIAction Line 45\t" + "线程"
+							+ Thread.currentThread().getName() + "结束运行");
+				} catch (Exception e) {
+					CbxUtil.err("AntUIAction Line 52\t" + e.getMessage());
+				}
+
+			}
+		}
 	}
 
 	/**

@@ -19,6 +19,8 @@ import org.eclipse.team.ui.synchronize.ISynchronizeModelElement;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import com.cbx.sfast.utilities.CbxUtil;
+
 /**
  * Our sample handler extends AbstractHandler, an IHandler base class.
  *
@@ -93,9 +95,9 @@ public class OpenTerminalHandler extends AbstractHandler {
 				try {
 					File conemu = new File("D:\\Software\\ConEmu\\ConEmu.exe1");
 					if (conemu.exists()) {
-						Runtime.getRuntime()
-						.exec("D:\\Software\\ConEmu\\ConEmu.exe /cmd -cur_console:d:"
-								+ path);
+						Runtime.getRuntime().exec(
+								"D:\\Software\\ConEmu\\ConEmu.exe /cmd -cur_console:d:"
+										+ path);
 						Runtime.getRuntime()
 								.exec("D:\\Software\\ConEmu\\ConEmu.exe /Dir "
 										+ path);
@@ -104,7 +106,7 @@ public class OpenTerminalHandler extends AbstractHandler {
 						Runtime.getRuntime().exec("cmd /k start cd " + path);
 					}
 				} catch (IOException e) {
-					e.printStackTrace();
+					CbxUtil.err("AntUIAction Line 109\t" + e.getMessage());
 				}
 			}
 

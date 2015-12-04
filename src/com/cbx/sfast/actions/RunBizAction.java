@@ -62,7 +62,7 @@ public class RunBizAction implements IWorkbenchWindowActionDelegate {
 			WorkThread work = new WorkThread();
 			work.start();
 		} catch (Exception e) {
-			CbxUtil.out.println("RunBizAction Line 75\t" + "err:---"
+			CbxUtil.log("RunBizAction Line 65\t" + "err:---"
 					+ e.getMessage());
 		}
 	}
@@ -73,39 +73,45 @@ public class RunBizAction implements IWorkbenchWindowActionDelegate {
 			synchronized (new Object()) {
 
 				try {
-					CbxUtil.out.println("RunBizAction Line 85\t" + "线程"
+					CbxUtil.log("RunBizAction Line 76\t" + "线程"
 							+ Thread.currentThread().getName() + "开始运行");
 					// Thread.currentThread().sleep(100);
 
 					if (store.getBoolean(PreferenceConstants.P_ALWAYS_ANT_CORE)) {
-						CbxUtil.out.println("RunBizAction Line 90\t"
+						CbxUtil.log("RunBizAction Line 81\t"
 								+ "ant core");
 						if (!CbxUtil.antCore(window)) {
+							CbxUtil.log("RunBizAction Line 84\t"
+									+ "ant core failure");
 							return;
 						}
 					}
 
 					if (store.getBoolean(PreferenceConstants.P_ALWAYS_ANT_UI)) {
 						CbxUtil.out
-								.println("RunBizAction Line 96\t" + "ant ui");
+								.println("RunBizAction Line 92\t" + "ant ui");
 						if (!CbxUtil.antUI(window)) {
+							CbxUtil.log("RunBizAction Line 94\t"
+									+ "ant ui failure");
 							return;
 						}
 					}
 
 					if (store
 							.getBoolean(PreferenceConstants.P_ALWAYS_ANT_GENERAL)) {
-						CbxUtil.out.println("RunBizAction Line 102\t"
+						CbxUtil.log("RunBizAction Line 102\t"
 								+ "ant general");
 						if (!CbxUtil.antGeneral(window)) {
+							CbxUtil.log("RunBizAction Line 105\t"
+									+ "ant general failure");
 							return;
 						}
 					}
 					CbxUtil.runBiz(bizpath);
-					CbxUtil.out.println("RunBizAction Line 107\t" + "线程"
+					CbxUtil.log("RunBizAction Line 111\t" + "线程"
 							+ Thread.currentThread().getName() + "运行完毕");
 				} catch (Exception e) {
-					CbxUtil.out.println("RunBizAction Line 110\t" + "err:---"
+					CbxUtil.log("RunBizAction Line 114\t" + "err:---"
 							+ e.getMessage());
 				}
 

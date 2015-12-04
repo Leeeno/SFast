@@ -20,6 +20,8 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.ide.IDE;
 
+import com.cbx.sfast.utilities.CbxUtil;
+
 /**
  * Our sample handler extends AbstractHandler, an IHandler base class.
  *
@@ -50,7 +52,8 @@ public class OpenFileFromClipboardHandler extends AbstractHandler {
 				IProject[] projects = getProjects();
 				IFile file = null;
 				for (IProject project : projects) {
-					file = project.getFile(filePaths[1].replace("\t", "") + "/" + filePaths[0].replace("\t", ""));
+					file = project.getFile(filePaths[1].replace("\t", "") + "/"
+							+ filePaths[0].replace("\t", ""));
 					fileToOpen = new File(file.getLocationURI().getPath());
 					if (!(fileToOpen.exists() && fileToOpen.isFile())) {
 						fileToOpen = null;
@@ -60,8 +63,11 @@ public class OpenFileFromClipboardHandler extends AbstractHandler {
 					}
 				}
 			} else {
+				CbxUtil.log("OpenFileFromClipboardHandler Line 66\t"
+						+ "err:---" + "Can not open file:" + getClipboardText()
+						+ "\n内容格式不正确");
 				MessageDialog.openInformation(window.getShell(),
-						"Can not open file:", getClipboardText() +"\n内容格式不正确");
+						"Can not open file:", getClipboardText() + "\n内容格式不正确");
 				return null;
 			}
 			if (fileToOpen.exists() && fileToOpen.isFile()) {
@@ -71,15 +77,18 @@ public class OpenFileFromClipboardHandler extends AbstractHandler {
 
 				IDE.openEditorOnFileStore(page, fileStore);
 			} else {
+				CbxUtil.log("OpenFileFromClipboardHandler Line 80\t"
+						+ "err:---" + "Can not open file:" + getClipboardText()
+						+ "\n找不到文件\n" + fileToOpen.getPath());
 				MessageDialog.openInformation(window.getShell(),
-						"Can not open file:", getClipboardText() +"\n找不到文件\n"+fileToOpen.getPath());
+						"Can not open file:", getClipboardText() + "\n找不到文件\n"
+								+ fileToOpen.getPath());
 				return null;
 			}
 
 		} catch (Exception e) {
-			MessageDialog.openInformation(window.getShell(),
-					"Can not open file:", getClipboardText()+"\n"+e.getMessage());
-			e.printStackTrace();
+			CbxUtil.err("OpenFileFromClipboardHandler Line 90\t"
+					+ e.getMessage());
 		}
 
 		return null;
@@ -103,7 +112,8 @@ public class OpenFileFromClipboardHandler extends AbstractHandler {
 							.getTransferData(DataFlavor.stringFlavor);
 
 				} catch (Exception e) {
-					e.printStackTrace();
+					CbxUtil.err("OpenFileFromClipboardHandler Line 116\t"
+							+ e.getMessage());
 					return null;
 				}
 		}
