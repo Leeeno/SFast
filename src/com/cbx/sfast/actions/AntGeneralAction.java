@@ -42,12 +42,12 @@ public class AntGeneralAction implements IWorkbenchWindowActionDelegate {
 			synchronized (new Object()) {
 
 				try {
-					CbxUtil.log("AntGeneralAction Line 45\t" + "线程"
-							+ Thread.currentThread().getName() + "开始运行");
+					CbxUtil.log("线程" + Thread.currentThread().getName()
+							+ "开始运行");
 					CbxUtil.antGeneral(window);
 
-					CbxUtil.log("AntGeneralAction Line 49\t" + "线程"
-							+ Thread.currentThread().getName() + "结束运行");
+					CbxUtil.log("线程" + Thread.currentThread().getName()
+							+ "结束运行");
 				} catch (Exception e) {
 					CbxUtil.err("AntGeneralAction Line 52\t" + e.getMessage());
 				}

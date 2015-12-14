@@ -1,5 +1,10 @@
 package com.cbx.sfast.actions;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -15,14 +20,15 @@ import com.cbx.sfast.utilities.CbxUtil;
  *
  * @see IWorkbenchWindowActionDelegate
  */
-public class AntUIAction implements IWorkbenchWindowActionDelegate {
+public class PrintLogToConsoleAction implements IWorkbenchWindowActionDelegate {
 
+	@SuppressWarnings("unused")
 	private IWorkbenchWindow window;
 
 	/**
 	 * The constructor.
 	 */
-	public AntUIAction() {
+	public PrintLogToConsoleAction() {
 	}
 
 	/**
@@ -44,12 +50,37 @@ public class AntUIAction implements IWorkbenchWindowActionDelegate {
 				try {
 					CbxUtil.log("线程" + Thread.currentThread().getName()
 							+ "开始运行");
-					CbxUtil.antUI(window);
+					String logPath = CbxUtil.bizpath + "logs/error/error.log";
+					File f = new File(logPath);
+					String result = null;
+					BufferedInputStream is = null;
+					try {
+						is = new BufferedInputStream(new FileInputStream(f));
+						long contentLength = f.length();
+						ByteArrayOutputStream outstream = new ByteArrayOutputStream(
+								contentLength > 0 ? (int) contentLength : 1024);
+						byte[] buffer = new byte[4096];
+						int len;
+						while ((len = is.read(buffer)) > 0) {
+							outstream.write(buffer, 0, len);
+						}
+						outstream.close();
+						result = outstream.toString();
+					} finally {
+						if (is != null) {
+							try {
+								is.close();
+							} catch (Exception e) {
+							}
+						}
+					}
 
 					CbxUtil.log("线程" + Thread.currentThread().getName()
 							+ "结束运行");
+					CbxUtil.log(result);
 				} catch (Exception e) {
-					CbxUtil.err("AntUIAction Line 52\t" + e.getMessage());
+					CbxUtil.err("PrintLogToConsoleAction Line 52\t"
+							+ e.getMessage());
 				}
 
 			}

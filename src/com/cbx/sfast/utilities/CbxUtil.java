@@ -20,6 +20,7 @@ import org.dom4j.io.XMLWriter;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -30,12 +31,16 @@ import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
+import com.cbx.sfast.preferences.PreferenceConstants;
+
+import sfast.Activator;
+
 public class CbxUtil {
 
-	private static String generalpath;
+	public static String generalpath;
 	public static String bizpath;
-	private static String uipath;
-	private static String corepath;
+	public static String uipath;
+	public static String corepath;
 
 	private static String generallibpath = "lib/runtime/";
 	private static String bizlibpath = "src/main/webapp/WEB-INF/lib/";
@@ -46,14 +51,20 @@ public class CbxUtil {
 
 	public static IProject[] projects = getProjects();
 
+	public static IPreferenceStore store = Activator.getDefault()
+			.getPreferenceStore();
+
 	static {
 		err.setColor(new Color(Display.getDefault(), 255, 0, 0));
 		getProjectsPath();
 	}
 
+	public static void errorLogToConsole() {
+
+	}
+
 	public static void runBiz(String _bizpath) throws IOException {
-		log("util runBiz Line 34\t" + "exec:\t" + "cmd /c cd " + _bizpath
-				+ " & start jetty-debug.cmd");
+		log("exec:\t" + "cmd /c cd " + _bizpath + " & start jetty-debug.cmd");
 		Runtime.getRuntime().exec(
 				"cmd /c cd " + _bizpath + " & start jetty-debug.cmd");
 	}
@@ -88,14 +99,12 @@ public class CbxUtil {
 
 			String msg = loadStream(ps.getInputStream());
 			if (msg.contains("BUILD FAILED")) {
-				err("util antGeneral Line 68\t"
-						+ loadStream(ps.getInputStream()));
+				err("util antGeneral Line 68\t" + msg);
 				return false;
 			}
 			String errmsg = loadStream(ps.getErrorStream());
-			if (errmsg != "" || errmsg != null) {
-				err("util antGeneral Line 74\t"
-						+ loadStream(ps.getErrorStream()));
+			if (!"".equals(errmsg) && errmsg != null) {
+				err("util antGeneral Line 74\t" + errmsg);
 			}
 
 			final File releaseJar = ReleaseFile(generalpath, "cbx-general");
@@ -114,8 +123,10 @@ public class CbxUtil {
 
 			CopyTo(releaseJar,
 					new File(bizpath + bizlibpath, releaseJar.getName()));
+
+			SettleBuildPath();
 		} catch (Exception e) {
-			err("util antGeneral Line 84\t" + "err:---" + e.getMessage());
+			err("util antGeneral Line 84\t" + e.getMessage());
 			return false;
 		}
 		return true;
@@ -133,13 +144,12 @@ public class CbxUtil {
 
 			String msg = loadStream(ps.getInputStream());
 			if (msg.contains("BUILD FAILED")) {
-				err("util antUI Line 117\t" + loadStream(ps.getInputStream()));
+				err("util antUI Line 117\t" + msg);
 				return false;
 			}
 			String errmsg = loadStream(ps.getErrorStream());
-			if (errmsg != "" || errmsg != null) {
-				err("util antUI Line 122\t" + "err:---"
-						+ loadStream(ps.getErrorStream()));
+			if (!"".equals(errmsg) && errmsg != null) {
+				err("util antUI Line 122\t" + errmsg);
 			}
 
 			final File releaseJar = ReleaseFile(uipath, "cbx-ui");
@@ -155,14 +165,16 @@ public class CbxUtil {
 				ShowError(window.getShell(), "Error", "Î´ÄÜÉ¾³ýjar°ü");
 				return false;
 			}
-
-			CopyTo(releaseJar, new File(generalpath + generallibpath,
-					releaseJar.getName()));
+			if (store.getBoolean(PreferenceConstants.P_UI_JAR_TO_GENERAL)) {
+				CopyTo(releaseJar, new File(generalpath + generallibpath,
+						releaseJar.getName()));
+			}
 			CopyTo(releaseJar,
 					new File(bizpath + bizlibpath, releaseJar.getName()));
 
+			SettleBuildPath();
 		} catch (Exception e) {
-			err("util antUI Line 133\t" + "err:---" + e.getMessage());
+			err("util antUI Line 133\t" + e.getMessage());
 			return false;
 		}
 		return true;
@@ -182,13 +194,12 @@ public class CbxUtil {
 			String msg = loadStream(ps.getInputStream());
 			if (msg.contains("BUILD FAILED")
 					&& !msg.contains(" Directory does not exist")) {
-				err("util antCore Line 186\t" + loadStream(ps.getInputStream()));
+				err("util antCore Line 186\t" + msg);
 				return false;
 			}
 			String errmsg = loadStream(ps.getErrorStream());
-			if (errmsg != "" || errmsg != null) {
-				err("util antCore Line 192\t" + "err:---"
-						+ loadStream(ps.getErrorStream()));
+			if (!"".equals(errmsg) && errmsg != null) {
+				err("util antCore Line 192\t" + errmsg);
 			}
 
 			final File releaseJar = ReleaseFile(corepath, "cbx-core");
@@ -207,13 +218,19 @@ public class CbxUtil {
 				return false;
 			}
 
-			CopyTo(releaseJar,
-					new File(uipath + uilibpath, releaseJar.getName()));
-			CopyTo(releaseJar, new File(generalpath + generallibpath,
-					releaseJar.getName()));
+			if (store.getBoolean(PreferenceConstants.P_CORE_JAR_TO_UI)) {
+				CopyTo(releaseJar,
+						new File(uipath + uilibpath, releaseJar.getName()));
+			}
+
+			if (store.getBoolean(PreferenceConstants.P_CORE_JAR_TO_GENERAL)) {
+				CopyTo(releaseJar, new File(generalpath + generallibpath,
+						releaseJar.getName()));
+			}
 			CopyTo(releaseJar,
 					new File(bizpath + bizlibpath, releaseJar.getName()));
 
+			SettleBuildPath();
 		} catch (Exception e) {
 			err("util antCore Line 204\t" + e.getMessage());
 			return false;
@@ -236,7 +253,6 @@ public class CbxUtil {
 			}
 		});
 	}
-
 
 	public static String getTime() {
 		Date date = new Date();
@@ -279,8 +295,7 @@ public class CbxUtil {
 				} else {
 					if (fi.getName().contains(filename)
 							&& fi.getName().contains(".jar")) {
-						log("util ReleaseFile Line 244\tfound: "
-								+ fi.getAbsolutePath());
+						log("found: " + fi.getAbsolutePath());
 						return fi;
 					} else {
 					}
@@ -306,11 +321,7 @@ public class CbxUtil {
 									+ fi.getAbsolutePath());
 							return false;
 						} else {
-							if (fi.getName().contains("alpha")) {
-								SettleBuildPath();
-							}
-							log("util DeleteFile Line 272\tdeleting "
-									+ fi.getAbsolutePath());
+							log("deleting " + fi.getAbsolutePath());
 						}
 					}
 				}
@@ -323,7 +334,7 @@ public class CbxUtil {
 	public static void CopyTo(final File f1, final File f2) throws Exception {
 		int byteread = 0;
 
-		log("util CopyTo Line 286\tcopy file: " + f1.getAbsolutePath() + " to "
+		log("copy file: " + f1.getAbsolutePath() + " to "
 				+ f2.getAbsolutePath());
 		final InputStream inStream = new FileInputStream(f1);
 		final FileOutputStream fs = new FileOutputStream(f2);
@@ -341,8 +352,7 @@ public class CbxUtil {
 				file.createNewFile();
 			}
 
-			log("util WriteFile Line 305\twrite file: "
-					+ file.getAbsolutePath());
+			log("write file: " + file.getAbsolutePath());
 
 			final byte[] contentInBytes = content.getBytes();
 

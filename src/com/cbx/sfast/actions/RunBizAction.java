@@ -4,15 +4,13 @@ import java.io.File;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
-import sfast.Activator;
-
 import com.cbx.sfast.preferences.PreferenceConstants;
 import com.cbx.sfast.utilities.CbxUtil;
+import com.cbx.sfast.utilities.GitUtil;
 
 /**
  * Our sample action implements workbench action delegate. The action proxy will
@@ -24,11 +22,7 @@ import com.cbx.sfast.utilities.CbxUtil;
  */
 public class RunBizAction implements IWorkbenchWindowActionDelegate {
 
-	private static String bizpath;
-
 	private IWorkbenchWindow window;
-
-	IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 
 	/**
 	 * The constructor.
@@ -44,26 +38,24 @@ public class RunBizAction implements IWorkbenchWindowActionDelegate {
 	 */
 	public void run(IAction action) {
 		try {
-			bizpath = CbxUtil.bizpath;
-			if (bizpath == null) {
+			if (CbxUtil.bizpath == null) {
 				MessageDialog.openInformation(window.getShell(), "Error",
 						"未找到biz项目");
 				return;
 			}
-			boolean rewriteJetty = store
+			boolean rewriteJetty = CbxUtil.store
 					.getBoolean(PreferenceConstants.P_REWRITE_JETTY_CMD);
 
 			if (rewriteJetty) {
-				final String jettyScript = store
+				final String jettyScript = CbxUtil.store
 						.getString(PreferenceConstants.P_JETTY_SCRIPT);
-				final File file = new File(bizpath, "jetty-debug.cmd");
+				final File file = new File(CbxUtil.bizpath, "jetty-debug.cmd");
 				CbxUtil.WriteFile(file, jettyScript);
 			}
 			WorkThread work = new WorkThread();
 			work.start();
 		} catch (Exception e) {
-			CbxUtil.log("RunBizAction Line 65\t" + "err:---"
-					+ e.getMessage());
+			CbxUtil.err(e.getMessage());
 		}
 	}
 
@@ -73,46 +65,96 @@ public class RunBizAction implements IWorkbenchWindowActionDelegate {
 			synchronized (new Object()) {
 
 				try {
-					CbxUtil.log("RunBizAction Line 76\t" + "线程"
-							+ Thread.currentThread().getName() + "开始运行");
-					// Thread.currentThread().sleep(100);
+					CbxUtil.log("线程" + Thread.currentThread().getName()
+							+ "开始运行");
+					boolean antCore = false;
+					boolean antUI = false;
+					boolean antGeneral = false;
 
-					if (store.getBoolean(PreferenceConstants.P_ALWAYS_ANT_CORE)) {
-						CbxUtil.log("RunBizAction Line 81\t"
-								+ "ant core");
+					if (CbxUtil.store
+							.getBoolean(PreferenceConstants.P_SMART_BUILD)) {
+						String coreChanged = GitUtil
+								.GetChangedString(CbxUtil.corepath);
+						if (!CbxUtil.store.getString(
+								PreferenceConstants.P_CORE_CHANGED).equals(
+								coreChanged)) {
+							antCore = true;
+							CbxUtil.store.setValue(
+									PreferenceConstants.P_CORE_CHANGED,
+									coreChanged);
+						}
+					}
+					if (CbxUtil.store
+							.getBoolean(PreferenceConstants.P_ALWAYS_ANT_CORE)) {
+						antCore = true;
+					}
+					if (antCore) {
+						CbxUtil.log("ant core");
 						if (!CbxUtil.antCore(window)) {
-							CbxUtil.log("RunBizAction Line 84\t"
+							CbxUtil.err("RunBizAction Line 84\t"
 									+ "ant core failure");
 							return;
 						}
 					}
 
-					if (store.getBoolean(PreferenceConstants.P_ALWAYS_ANT_UI)) {
-						CbxUtil.out
-								.println("RunBizAction Line 92\t" + "ant ui");
+					if (CbxUtil.store
+							.getBoolean(PreferenceConstants.P_SMART_BUILD)) {
+						String uiChanged = GitUtil
+								.GetChangedString(CbxUtil.uipath);
+						if (!CbxUtil.store.getString(
+								PreferenceConstants.P_UI_CHANGED).equals(
+								uiChanged)) {
+							antUI = true;
+							CbxUtil.store
+									.setValue(PreferenceConstants.P_UI_CHANGED,
+											uiChanged);
+						}
+					}
+					if (CbxUtil.store
+							.getBoolean(PreferenceConstants.P_ALWAYS_ANT_UI)) {
+						antUI = true;
+					}
+					if (antUI) {
+						CbxUtil.log("ant ui");
 						if (!CbxUtil.antUI(window)) {
-							CbxUtil.log("RunBizAction Line 94\t"
+							CbxUtil.err("RunBizAction Line 94\t"
 									+ "ant ui failure");
 							return;
 						}
 					}
 
-					if (store
+					if (CbxUtil.store
+							.getBoolean(PreferenceConstants.P_SMART_BUILD)) {
+						String generalChanged = GitUtil
+								.GetChangedString(CbxUtil.generalpath);
+						if (!CbxUtil.store.getString(
+								PreferenceConstants.P_GENERAL_CHANGED).equals(
+								generalChanged)) {
+							antGeneral = true;
+							CbxUtil.store.setValue(
+									PreferenceConstants.P_GENERAL_CHANGED,
+									generalChanged);
+						}
+					}
+					if (CbxUtil.store
 							.getBoolean(PreferenceConstants.P_ALWAYS_ANT_GENERAL)) {
-						CbxUtil.log("RunBizAction Line 102\t"
-								+ "ant general");
+						antGeneral = true;
+					}
+
+					if (antGeneral) {
+						CbxUtil.log("ant general");
 						if (!CbxUtil.antGeneral(window)) {
-							CbxUtil.log("RunBizAction Line 105\t"
+							CbxUtil.err("RunBizAction Line 105\t"
 									+ "ant general failure");
 							return;
 						}
 					}
-					CbxUtil.runBiz(bizpath);
-					CbxUtil.log("RunBizAction Line 111\t" + "线程"
-							+ Thread.currentThread().getName() + "运行完毕");
+
+					CbxUtil.runBiz(CbxUtil.bizpath);
+					CbxUtil.log("线程" + Thread.currentThread().getName()
+							+ "运行完毕");
 				} catch (Exception e) {
-					CbxUtil.log("RunBizAction Line 114\t" + "err:---"
-							+ e.getMessage());
+					CbxUtil.err("RunBizAction Line 114\t" + e.getMessage());
 				}
 
 			}

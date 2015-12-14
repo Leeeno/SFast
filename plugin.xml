@@ -25,6 +25,15 @@
                id="com.cbx.sfast.actions.ClassPathAction">
          </action>
          <action
+               label="&amp;Print error log"
+               icon="icons/error.png"
+               class="com.cbx.sfast.actions.PrintLogToConsoleAction"
+               tooltip="Print error log to console."
+               menubarPath="sfastMenu/sfastGroup"
+               toolbarPath="sfastGroup"
+               id="com.cbx.sfast.actions.PrintLogToConsoleAction">
+         </action>
+         <action
                label="Ant &amp;Core"
                icon="icons/core.png"
                class="com.cbx.sfast.actions.AntCoreAction"

@@ -48,6 +48,8 @@ public class SFastPreferencePage extends FieldEditorPreferencePage implements
 				PreferenceConstants.P_FOR_LABEL, "运行biz时始终编译：", 1,
 				new String[][] { }, getFieldEditorParent()));
 
+		addField(new BooleanFieldEditor(PreferenceConstants.P_SMART_BUILD,
+				"自动感知", getFieldEditorParent()));
 		addField(new BooleanFieldEditor(
 				PreferenceConstants.P_ALWAYS_ANT_GENERAL, "CBX_General",
 				getFieldEditorParent()));
@@ -55,6 +57,23 @@ public class SFastPreferencePage extends FieldEditorPreferencePage implements
 				"CBX_UI", getFieldEditorParent()));
 		addField(new BooleanFieldEditor(PreferenceConstants.P_ALWAYS_ANT_CORE,
 				"CBX_Core", getFieldEditorParent()));
+
+
+		addField(new RadioGroupFieldEditor(
+				PreferenceConstants.P_FOR_LABEL, "Ant Core 之后将jar包复制到：", 1,
+				new String[][] { }, getFieldEditorParent()));
+		addField(new BooleanFieldEditor(PreferenceConstants.P_CORE_JAR_TO_UI,
+				"CBX_UI", getFieldEditorParent()));
+		addField(new BooleanFieldEditor(PreferenceConstants.P_CORE_JAR_TO_GENERAL,
+				"CBX_General", getFieldEditorParent()));
+
+
+		addField(new RadioGroupFieldEditor(
+				PreferenceConstants.P_FOR_LABEL, "Ant UI 之后将jar包复制到：", 1,
+				new String[][] { }, getFieldEditorParent()));
+		addField(new BooleanFieldEditor(
+				PreferenceConstants.P_UI_JAR_TO_GENERAL, "CBX_General",
+				getFieldEditorParent()));
 	}
 
 	/*
