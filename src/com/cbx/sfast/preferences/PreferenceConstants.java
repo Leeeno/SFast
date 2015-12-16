@@ -18,7 +18,7 @@ public class PreferenceConstants {
 	public static final String P_CORE_JAR_TO_GENERAL = "coreJarToGeneral";
 	public static final String P_UI_JAR_TO_GENERAL = "uiJarToGeneral";
 
-	public static final String P_FOR_LABEL = "forLabel";
+    public static final String P_FOR_LABEL = "forLabel";
 
 	public static final String P_GENERAL_CHANGED = "generalChanged";
 	public static final String P_UI_CHANGED = "uiChanged";
