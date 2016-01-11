@@ -14,7 +14,26 @@
             <separator
                   name="sfastGroup">
             </separator>
+            <separator
+                  name="sfastPreferenceGroup">
+            </separator>
          </menu>
+         <action
+               label="&amp;Preference"
+               class="com.cbx.sfast.actions.OpenPreferenceAction"
+               tooltip="Open preference."
+               menubarPath="sfastMenu/sfastPreferenceGroup"
+               id="com.cbx.sfast.actions.OpenPreferenceAction">
+         </action>
+         <action
+               label="&amp;Find CSS class"
+               icon="icons/css.png"
+               class="com.cbx.sfast.actions.FindCSSAction"
+               tooltip="Find CSS class."
+               menubarPath="sfastMenu/sfastGroup"
+               toolbarPath="sfastGroup"
+               id="com.cbx.sfast.actions.FindCSSAction">
+         </action>
          <action
                label="&amp;Settle build path"
                icon="icons/classpath.png"
@@ -95,6 +114,13 @@
             categoryId="org.eclipse.ui.category.window"
             id="com.cbx.sfast.actions.commands.openInTerminalCommand">
       </command>
+
+<!-- Backup changed -->
+      <command
+            name="Backup changed"
+            categoryId="org.eclipse.ui.category.window"
+            id="com.cbx.sfast.actions.commands.backupChangedCommand">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -115,6 +141,12 @@
       <handler
             commandId="com.cbx.sfast.actions.commands.openInTerminalCommand"
             class="com.cbx.sfast.actions.OpenTerminalHandler">
+      </handler>
+
+<!-- backup changed -->
+      <handler
+            commandId="com.cbx.sfast.actions.commands.backupChangedCommand"
+            class="com.cbx.sfast.actions.BackupChangedHandler">
       </handler>
    </extension>
    <extension
@@ -184,6 +216,27 @@
                </iterate>
             </visibleWhen>
          </command>
+
+<!-- backup changed -->
+         <command
+               commandId="com.cbx.sfast.actions.commands.backupChangedCommand"
+               icon="icons/backup.png"
+               id="com.cbx.sfast.actions.commands.backupChangedCommand"
+               mnemonic="%command.mnemonic">
+            <visibleWhen>
+               <iterate
+                     ifEmpty="false">
+                  <or>
+                     <instanceof
+                           value="org.eclipse.jdt.core.IJavaProject">
+                     </instanceof>
+                     <instanceof
+                           value="org.eclipse.core.resources.IProject">
+                     </instanceof>
+                  </or>
+               </iterate>
+            </visibleWhen>
+         </command>
       </menuContribution>
 
    </extension>
@@ -202,5 +255,28 @@
       </initializer>
    </extension>
 
-
+ <extension
+          point="org.eclipse.ui.popupMenus">
+       <viewerContribution
+             id="com.cbx.sfast.ui.popupMenu"
+             targetID="#CompilationUnitEditorContext">
+          <menu
+                id="com.cbx.sfast.ui.popupSubMenu"
+                label="SFast"
+                path="additions">
+             <groupMarker
+                   name="content">
+             </groupMarker>
+             <separator
+                   name="additions">
+             </separator>
+          </menu>
+          <action
+                class="com.cbx.sfast.actions.FindCSSAction"
+                id="com.cbx.sfast.ui.FindCSSAction"
+                label="Find CSS class"
+                menubarPath="org.eclipse.jdt.ui.source.menu/commentGroup">
+          </action>
+       </viewerContribution>
+    </extension>
 </plugin>

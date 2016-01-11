@@ -57,7 +57,7 @@ public class OpenFileFromClipboardHandler extends AbstractHandler {
                     }
                 }
             } else {
-                CbxUtil.err("OpenFileFromClipboardHandler Line 66\t" + "Can not open file:" + filePath + "\n内容格式不正确");
+                CbxUtil.errln(CbxUtil.getLineInfo() + "Can not open file:" + filePath + "\n内容格式不正确");
                 MessageDialog.openInformation(window.getShell(), "Can not open file:", filePath + "\n内容格式不正确");
                 return null;
             }
@@ -67,7 +67,7 @@ public class OpenFileFromClipboardHandler extends AbstractHandler {
 
                 IDE.openEditorOnFileStore(page, fileStore);
             } else {
-                CbxUtil.err("OpenFileFromClipboardHandler Line 80\t" + "Can not open file:" + filePath + "\n找不到文件\n"
+                CbxUtil.errln(CbxUtil.getLineInfo() + "Can not open file:" + filePath + "\n找不到文件\n"
                         + fileToOpen.getPath());
                 MessageDialog.openInformation(window.getShell(), "Can not open file:", filePath + "\n找不到文件\n"
                         + fileToOpen.getPath());
@@ -75,7 +75,7 @@ public class OpenFileFromClipboardHandler extends AbstractHandler {
             }
 
         } catch (final Exception e) {
-            CbxUtil.err("OpenFileFromClipboardHandler Line 90\t" + e.getMessage());
+            CbxUtil.errln(CbxUtil.getLineInfo() + e.getMessage());
         }
 
         return null;

@@ -1,12 +1,12 @@
 package com.cbx.sfast.actions;
 
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-
-import com.cbx.sfast.utilities.AntUtil;
-import com.cbx.sfast.utilities.CbxUtil;
+import org.eclipse.ui.dialogs.PreferencesUtil;
 
 /**
  * Our sample action implements workbench action delegate. The action proxy will be created by the workbench and shown
@@ -15,14 +15,15 @@ import com.cbx.sfast.utilities.CbxUtil;
  *
  * @see IWorkbenchWindowActionDelegate
  */
-public class AntUIAction implements IWorkbenchWindowActionDelegate {
+public class OpenPreferenceAction implements IWorkbenchWindowActionDelegate {
 
+    @SuppressWarnings("unused")
     private IWorkbenchWindow window;
 
     /**
      * The constructor.
      */
-    public AntUIAction() {
+    public OpenPreferenceAction() {
     }
 
     /**
@@ -33,26 +34,10 @@ public class AntUIAction implements IWorkbenchWindowActionDelegate {
      */
     @Override
     public void run(final IAction action) {
-        final WorkThread work = new WorkThread();
-        work.start();
-    }
-
-    class WorkThread extends Thread {
-        @Override
-        public void run() {
-            synchronized (new Object()) {
-
-                try {
-                    CbxUtil.logln("线程" + Thread.currentThread().getName() + "开始运行");
-                    AntUtil.antUI(window);
-
-                    CbxUtil.logln("线程" + Thread.currentThread().getName() + "结束运行");
-                } catch (final Exception e) {
-                    CbxUtil.errln(CbxUtil.getLineInfo() + e.getMessage());
-                }
-
-            }
-        }
+        final PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(Display.getCurrent().getActiveShell(),
+                "com.cbx.sfast.preferences.SFastPreferencePage",
+                new String[] {"com.cbx.sfast.preferences.SFastPreferencePage"}, null);
+        dialog.open();
     }
 
     /**

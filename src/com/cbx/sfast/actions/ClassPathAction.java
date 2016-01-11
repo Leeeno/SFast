@@ -33,7 +33,7 @@ public class ClassPathAction implements IWorkbenchWindowActionDelegate {
      */
     @Override
     public void run(final IAction action) {
-        CbxUtil.SettleBuildPath();
+        CbxUtil.settleBuildPath();
     }
 
     /**

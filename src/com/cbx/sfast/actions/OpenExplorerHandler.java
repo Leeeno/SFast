@@ -19,6 +19,8 @@ import org.eclipse.team.ui.synchronize.ISynchronizeModelElement;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import com.cbx.sfast.utilities.CbxUtil;
+
 /**
  * Our sample handler extends AbstractHandler, an IHandler base class.
  *
@@ -87,9 +89,9 @@ public class OpenExplorerHandler extends AbstractHandler {
             }
             if (path != null) {
                 try {
-                    Runtime.getRuntime().exec("explorer " + path); //$NON-NLS-1$
+                    Runtime.getRuntime().exec("explorer " + path);
                 } catch (final IOException e) {
-                    //
+                    CbxUtil.errln(e.getMessage());
                 }
             }
 

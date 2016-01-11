@@ -49,8 +49,8 @@ public class PrintLogToConsoleAction implements IWorkbenchWindowActionDelegate {
             synchronized (new Object()) {
 
                 try {
-                    CbxUtil.log("线程" + Thread.currentThread().getName() + "开始运行");
-                    final String logPath = CbxUtil.bizpath + "logs/error/error.log";
+                    CbxUtil.logln("线程" + Thread.currentThread().getName() + "开始运行");
+                    final String logPath = CbxUtil.PATH_BUSINESS_PROJECT + "logs/error/error.log";
                     final File f = new File(logPath);
                     String result = null;
                     BufferedInputStream is = null;
@@ -76,24 +76,24 @@ public class PrintLogToConsoleAction implements IWorkbenchWindowActionDelegate {
                         }
                     }
 
-                    CbxUtil.log("线程" + Thread.currentThread().getName() + "结束运行");
-                    CbxUtil.console.clearConsole();
+                    CbxUtil.logln("线程" + Thread.currentThread().getName() + "结束运行");
+                    CbxUtil.clearConsole();
                     final String errorId = CbxUtil.getClipboardText().trim();
-                    CbxUtil.log("errorid\t" + errorId.length());
+                    CbxUtil.logln("errorid\t" + errorId.length());
                     if (errorId != null && errorId.length() == 13) {
                         final String[] results = result.split(errorId);
                         if (results.length == 2) {
-                            CbxUtil.debugStream.print(errorId);
+                            CbxUtil.debug(errorId);
                             Thread.currentThread().sleep(10);
-                            CbxUtil.errStream.print(results[1]);
+                            CbxUtil.err(results[1]);
                         } else {
-                            CbxUtil.err(result);
+                            CbxUtil.errln(CbxUtil.getLineInfo() + result);
                         }
                     } else {
-                        CbxUtil.err(result);
+                        CbxUtil.errln(CbxUtil.getLineInfo() + result);
                     }
                 } catch (final Exception e) {
-                    CbxUtil.err("PrintLogToConsoleAction Line 96\t" + e.getMessage());
+                    CbxUtil.errln(CbxUtil.getLineInfo() + e.getMessage());
                 }
 
             }

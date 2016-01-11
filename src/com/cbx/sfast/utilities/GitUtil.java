@@ -6,11 +6,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 public class GitUtil {
 
-    public static String GetChangedString(final String projectPath) {
+    public static String getChangedString(final String projectPath) {
         try {
-            final String strCL = GetStatus(projectPath);
+            final String strCL = getStatus(projectPath);
             final String[] lines = strCL.split("\n");
 
             boolean untrackStart = false;
@@ -26,13 +28,13 @@ public class GitUtil {
                     continue;
                 }
                 if (untrackStart || line.contains("modified:")) {
-                    final Long co = GetFileChangedOn(projectPath, line);
+                    final Long co = getFileChangedOn(projectPath, line);
                     if (changedOn < co) {
                         changedOn = co;
                     }
                 }
                 if (line.contains("deleted:")) {
-                    deleted.add(GetFile(line));
+                    deleted.add(getFile(line));
                 }
 
                 if (line.contains("Untracked files:")) {
@@ -45,27 +47,73 @@ public class GitUtil {
             }
             return changedOn + strDeleted;
         } catch (final IOException e) {
-            CbxUtil.err("GitUtil GetChangedString Line 49\t" + e.getMessage());
+            CbxUtil.errln(CbxUtil.getLineInfo() + e.getMessage());
         }
         return "0";
     }
 
-    public static String GetStatus(final String projectPath) throws IOException {
+    public static List<String> getChangedFileList(final String projectPath) {
+        try {
+            final String status = getStatus(projectPath);
+            final List<String> fileList = new ArrayList<String>();
+            final String[] lines = status.split("\n");
+
+            boolean untrackStart = false;
+
+            for (final String line : lines) {
+                if (-1 != line.indexOf("(") || "#".equals(line)) {
+                    continue;
+                }
+                if (untrackStart || line.contains("modified:")) {
+                    String filename;
+                    if (line.indexOf(":") == -1) {
+                        filename = line.split("\t")[1].trim();
+                    } else {
+                        filename = line.split(":")[1].trim();
+                    }
+                    final File file = new File(projectPath + filename);
+                    fileList.addAll(getFilePath(file));
+                }
+                if (line.contains("Untracked files:")) {
+                    untrackStart = true;
+                }
+            }
+            return fileList;
+        } catch (final IOException e) {
+            CbxUtil.errln(CbxUtil.getLineInfo() + e.getMessage());
+        }
+        return null;
+    }
+
+    public static List<String> getFilePath(final File file) {
+        final List<String> fileList = new ArrayList<String>();
+        final File[] files = file.listFiles();
+        for (final File fi : files) {
+            if (fi.isFile()) {
+                fileList.add(fi.getAbsolutePath());
+            } else if (fi.isDirectory()) {
+                fileList.addAll(getFilePath(fi));
+            }
+        }
+        return fileList;
+    }
+
+    public static String getStatus(final String projectPath) throws IOException {
         // CbxUtil.log(String.format("cmd /c cd %s & git status", projectPath));
         final Process ps = Runtime.getRuntime().exec(String.format("cmd /c cd %s & git status", projectPath));
 
-        final String msg = CbxUtil.loadStream(ps.getInputStream());
-        if (msg == null) {
-            CbxUtil.err("GitUtil GetStatus Line 60\t" + msg);
+        final String msg = CbxUtil.convertInputStreamToString(ps.getInputStream());
+        if (StringUtils.isBlank(msg)) {
+            CbxUtil.errln(CbxUtil.getLineInfo() + "No message.");
         }
-        final String errmsg = CbxUtil.loadStream(ps.getErrorStream());
-        if (!"".equals(errmsg) && errmsg != null) {
-            CbxUtil.err("GitUtil GetStatus Line 64\t" + errmsg);
+        final String errmsg = CbxUtil.convertInputStreamToString(ps.getErrorStream());
+        if (StringUtils.isNotBlank(errmsg)) {
+            CbxUtil.errln(CbxUtil.getLineInfo() + errmsg);
         }
         return msg;
     }
 
-    public static String GetFile(final String line) {
+    public static String getFile(final String line) {
         String filename;
         if (line.indexOf(":") == -1) {
             filename = line.split("\t")[1].trim();
@@ -75,7 +123,7 @@ public class GitUtil {
         return filename;
     }
 
-    public static Long GetFileChangedOn(final String projectPath, final String line) {
+    public static Long getFileChangedOn(final String projectPath, final String line) {
         String filename;
         if (line.indexOf(":") == -1) {
             filename = line.split("\t")[1].trim();
@@ -86,12 +134,12 @@ public class GitUtil {
         if (file.isFile()) {
             return file.lastModified();
         } else if (file.isDirectory()) {
-            return GetFileChangedOn(file, 0L);
+            return getFileChangedOn(file, 0L);
         }
         return 0L;
     }
 
-    public static Long GetFileChangedOn(final File file, Long changedOn) {
+    public static Long getFileChangedOn(final File file, Long changedOn) {
         final File[] files = file.listFiles();
         for (final File fi : files) {
             if (fi.isFile()) {
@@ -99,7 +147,7 @@ public class GitUtil {
                     changedOn = fi.lastModified();
                 }
             } else if (fi.isDirectory()) {
-                final Long co = GetFileChangedOn(fi, changedOn);
+                final Long co = getFileChangedOn(fi, changedOn);
                 if (changedOn < co) {
                     changedOn = co;
                 }

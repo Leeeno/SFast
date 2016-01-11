@@ -5,6 +5,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
+import com.cbx.sfast.utilities.AntUtil;
 import com.cbx.sfast.utilities.CbxUtil;
 
 /**
@@ -42,12 +43,12 @@ public class AntCoreAction implements IWorkbenchWindowActionDelegate {
             synchronized (new Object()) {
 
                 try {
-                    CbxUtil.log("线程" + Thread.currentThread().getName() + "开始运行");
-                    CbxUtil.antCore(window);
+                    CbxUtil.logln("线程" + Thread.currentThread().getName() + "开始运行");
+                    AntUtil.antCore(window);
 
-                    CbxUtil.log("线程" + Thread.currentThread().getName() + "结束运行");
+                    CbxUtil.logln("线程" + Thread.currentThread().getName() + "结束运行");
                 } catch (final Exception e) {
-                    CbxUtil.err("AntCoreAction Line 52\t" + e.getMessage());
+                    CbxUtil.errln(CbxUtil.getLineInfo() + e.getMessage());
                 }
 
             }

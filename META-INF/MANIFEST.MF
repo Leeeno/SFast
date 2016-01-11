@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SFast
 Bundle-SymbolicName: com.cbx.SFast;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.1.qualifier
 Bundle-Activator: sfast.Activator
 Bundle-Vendor: SL
 Require-Bundle: org.eclipse.ui,
@@ -12,7 +12,10 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.resources,
  org.eclipse.ui.ide,
  org.eclipse.core.filesystem,
- org.eclipse.ui.console
+ org.eclipse.ui.console,
+ org.eclipse.ui.editors,
+ org.eclipse.jface.text,
+ org.apache.commons.lang
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: lib/dom4j-1.6.1.jar,

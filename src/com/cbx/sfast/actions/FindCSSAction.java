@@ -1,11 +1,14 @@
 package com.cbx.sfast.actions;
 
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
+import org.eclipse.ui.texteditor.ITextEditor;
 
-import com.cbx.sfast.utilities.AntUtil;
+import com.cbx.sfast.utilities.CSSUtil;
 import com.cbx.sfast.utilities.CbxUtil;
 
 /**
@@ -15,14 +18,15 @@ import com.cbx.sfast.utilities.CbxUtil;
  *
  * @see IWorkbenchWindowActionDelegate
  */
-public class AntUIAction implements IWorkbenchWindowActionDelegate {
+public class FindCSSAction implements IWorkbenchWindowActionDelegate {
 
     private IWorkbenchWindow window;
+    public static String selectionText = null;
 
     /**
      * The constructor.
      */
-    public AntUIAction() {
+    public FindCSSAction() {
     }
 
     /**
@@ -33,6 +37,7 @@ public class AntUIAction implements IWorkbenchWindowActionDelegate {
      */
     @Override
     public void run(final IAction action) {
+        selectionText = getCurrentSelection();
         final WorkThread work = new WorkThread();
         work.start();
     }
@@ -44,7 +49,8 @@ public class AntUIAction implements IWorkbenchWindowActionDelegate {
 
                 try {
                     CbxUtil.logln("线程" + Thread.currentThread().getName() + "开始运行");
-                    AntUtil.antUI(window);
+
+                    CSSUtil.FindCSS(selectionText, window.getActivePage());
 
                     CbxUtil.logln("线程" + Thread.currentThread().getName() + "结束运行");
                 } catch (final Exception e) {
@@ -63,6 +69,25 @@ public class AntUIAction implements IWorkbenchWindowActionDelegate {
      */
     @Override
     public void selectionChanged(final IAction action, final ISelection selection) {
+    }
+
+    public String getCurrentSelection() {
+        try {
+            final IEditorPart part = window.getActivePage().getActiveEditor();
+            if (part instanceof ITextEditor) {
+                final ITextEditor editor = (ITextEditor) part;
+                // final IDocumentProvider prov = editor.getDocumentProvider();
+                // final IDocument doc = prov.getDocument(editor.getEditorInput());
+                final ISelection sel = editor.getSelectionProvider().getSelection();
+                if (sel instanceof TextSelection) {
+                    final TextSelection textSel = (TextSelection) sel;
+                    return textSel.getText();
+                }
+            }
+        } catch (final Exception ex) {
+            CbxUtil.errln(CbxUtil.getLineInfo() + ex.getMessage());
+        }
+        return null;
     }
 
     /**

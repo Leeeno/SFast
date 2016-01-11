@@ -98,7 +98,7 @@ public class OpenTerminalHandler extends AbstractHandler {
                         Runtime.getRuntime().exec("cmd /k start cd " + path);
                     }
                 } catch (final IOException e) {
-                    CbxUtil.err("AntUIAction Line 109\t" + e.getMessage());
+                    CbxUtil.errln(CbxUtil.getLineInfo() + e.getMessage());
                 }
             }
 
