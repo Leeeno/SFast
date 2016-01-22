@@ -23,4 +23,6 @@ public class PreferenceConstants {
 	public static final String P_GENERAL_CHANGED = "generalChanged";
 	public static final String P_UI_CHANGED = "uiChanged";
 	public static final String P_CORE_CHANGED = "coreChanged";
+
+    public static final String P_BACKUP_PATH = "backupPath";
 }

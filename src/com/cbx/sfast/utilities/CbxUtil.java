@@ -70,6 +70,7 @@ public class CbxUtil {
     public static void runBiz() throws IOException {
         // log("exec:\t" + "cmd /c cd " + _bizpath + " & start jetty-debug.cmd");
         Runtime.getRuntime().exec(CMD_JETTY_WITH_CONEMU);
+        settleBuildPath();
     }
 
     public static void showMessageDialog(final Shell shell, final String titile, final String message) {
@@ -165,7 +166,8 @@ public class CbxUtil {
 
     public static String getLineInfo() {
         final StackTraceElement ste = new Throwable().getStackTrace()[1];
-        return "(" + ste.getFileName() + ":" + ste.getLineNumber() + "):\t";
+        return ste.getMethodName() + "(" + ste.getFileName()
+                + ":" + ste.getLineNumber() + "):\t";
     }
 
     public static String getTime() {
@@ -173,6 +175,25 @@ public class CbxUtil {
         final DateFormat format = new SimpleDateFormat("HH:mm:ss");
         final String time = format.format(date);
         return time;
+    }
+
+    public static String getClipboardText() {
+        final Clipboard clip = Toolkit.getDefaultToolkit().getSystemClipboard();// 获取系统剪贴板
+        // 获取剪切板中的内容
+        final Transferable clipT = clip.getContents(null);
+        if (clipT != null) {
+            // 检查内容是否是文本类型
+            if (clipT.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+                try {
+                    return (String) clipT.getTransferData(DataFlavor.stringFlavor);
+
+                } catch (final Exception e) {
+                    errln(getLineInfo() + e.getMessage());
+                    return null;
+                }
+            }
+        }
+        return null;
     }
 
     public static String convertInputStreamToString(InputStream in) throws IOException {
@@ -221,21 +242,21 @@ public class CbxUtil {
 
     public static void settleBuildPath() {
         if (PATH_BUSINESS_PROJECT != null) {
-            settleBuildPath(PATH_BUSINESS_PROJECT, PATH_BUSINESS_LIB);
+            _settleBuildPath(PATH_BUSINESS_PROJECT, PATH_BUSINESS_LIB);
         }
         if (PATH_GENERAL_PROJECT != null) {
-            settleBuildPath(PATH_GENERAL_PROJECT, PATH_GENERAL_LIB);
+            _settleBuildPath(PATH_GENERAL_PROJECT, PATH_GENERAL_LIB);
         }
         if (PATH_UI_PROJECT != null) {
-            settleBuildPath(PATH_UI_PROJECT, PATH_UI_LIB);
+            _settleBuildPath(PATH_UI_PROJECT, PATH_UI_LIB);
         }
         if (PATH_CORE_PROJECT != null) {
-            settleBuildPath(PATH_CORE_PROJECT, PATH_CORE_LIB);
+            _settleBuildPath(PATH_CORE_PROJECT, PATH_CORE_LIB);
         }
     }
 
     @SuppressWarnings("unchecked")
-    private static void settleBuildPath(final String projectPath, final String projectLibPath) {
+    private static void _settleBuildPath(final String projectPath, final String projectLibPath) {
         final SAXReader reader = new SAXReader();
         InputStream in;
         try {
@@ -351,24 +372,5 @@ public class CbxUtil {
                 PATH_CORE_PROJECT = PATH_CORE_PROJECT.substring(1);
             }
         }
-    }
-
-    public static String getClipboardText() {
-        final Clipboard clip = Toolkit.getDefaultToolkit().getSystemClipboard();// 获取系统剪贴板
-        // 获取剪切板中的内容
-        final Transferable clipT = clip.getContents(null);
-        if (clipT != null) {
-            // 检查内容是否是文本类型
-            if (clipT.isDataFlavorSupported(DataFlavor.stringFlavor)) {
-                try {
-                    return (String) clipT.getTransferData(DataFlavor.stringFlavor);
-
-                } catch (final Exception e) {
-                    errln(getLineInfo() + e.getMessage());
-                    return null;
-                }
-            }
-        }
-        return null;
     }
 }
