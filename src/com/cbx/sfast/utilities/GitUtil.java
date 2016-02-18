@@ -25,7 +25,7 @@ public class GitUtil {
     private static final String BLANK_LINE = "#";
     private static final String CMD_ANT_JAR_FORMAT = "cmd /c cd %s & git status";
 
-    public static String getStatus(final String projectPath) throws IOException {
+    private static String getStatus(final String projectPath) throws IOException {
         final Process ps = Runtime.getRuntime().exec(String.format(CMD_ANT_JAR_FORMAT, projectPath));
 
         final String msg = CbxUtil.convertInputStreamToString(ps.getInputStream());
@@ -72,7 +72,7 @@ public class GitUtil {
         return null;
     }
 
-    public static List<File> getFiles(final File file) {
+    private static List<File> getFiles(final File file) {
         final List<File> fileList = new ArrayList<File>();
         if (file.isFile()) {
             fileList.add(file);
@@ -129,7 +129,7 @@ public class GitUtil {
         return NOTHING_CHANGED;
     }
 
-    public static String getFile(final String line) {
+    private static String getFile(final String line) {
         String filename;
         if (line.indexOf(SEPARATOR_TYPE) == -1) {
             filename = line.split(SEPARATOR_PATH)[1].trim();
@@ -139,7 +139,7 @@ public class GitUtil {
         return filename;
     }
 
-    public static Long getFileChangedOn(final String projectPath, final String line) {
+    private static Long getFileChangedOn(final String projectPath, final String line) {
         String filename;
         if (line.indexOf(SEPARATOR_TYPE) == -1) {
             filename = line.split(SEPARATOR_PATH)[1].trim();
@@ -155,7 +155,7 @@ public class GitUtil {
         return 0L;
     }
 
-    public static Long getFileChangedOn(final File file, Long changedOn) {
+    private static Long getFileChangedOn(final File file, Long changedOn) {
         final File[] files = file.listFiles();
         for (final File fi : files) {
             if (fi.isFile()) {

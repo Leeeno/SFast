@@ -70,7 +70,8 @@ public class RunBizAction implements IWorkbenchWindowActionDelegate {
                     boolean antUI = false;
                     boolean antGeneral = false;
 
-                    if (CbxUtil.store.getBoolean(PreferenceConstants.P_SMART_BUILD)) {
+                    final boolean isSmartBuild = CbxUtil.store.getBoolean(PreferenceConstants.P_SMART_BUILD);
+                    if (CbxUtil.store.getBoolean(PreferenceConstants.P_ALWAYS_ANT_CORE) && isSmartBuild) {
                         final String coreChanged = GitUtil.getChangedString(CbxUtil.PATH_CORE_PROJECT);
                         if (!GitUtil.NOTHING_CHANGED.equals(coreChanged)) {
                             if (!CbxUtil.store.getString(PreferenceConstants.P_CORE_CHANGED).equals(coreChanged)) {
@@ -79,7 +80,7 @@ public class RunBizAction implements IWorkbenchWindowActionDelegate {
                             }
                         }
                     }
-                    if (CbxUtil.store.getBoolean(PreferenceConstants.P_ALWAYS_ANT_CORE)) {
+                    else if (CbxUtil.store.getBoolean(PreferenceConstants.P_ALWAYS_ANT_CORE) && !isSmartBuild) {
                         antCore = true;
                     }
                     if (antCore) {
@@ -91,7 +92,7 @@ public class RunBizAction implements IWorkbenchWindowActionDelegate {
                         }
                     }
 
-                    if (CbxUtil.store.getBoolean(PreferenceConstants.P_SMART_BUILD)) {
+                    if (CbxUtil.store.getBoolean(PreferenceConstants.P_ALWAYS_ANT_UI) && isSmartBuild) {
                         final String uiChanged = GitUtil.getChangedString(CbxUtil.PATH_UI_PROJECT);
                         if (!GitUtil.NOTHING_CHANGED.equals(uiChanged)) {
                             if (!CbxUtil.store.getString(PreferenceConstants.P_UI_CHANGED).equals(uiChanged)) {
@@ -100,7 +101,7 @@ public class RunBizAction implements IWorkbenchWindowActionDelegate {
                             }
                         }
                     }
-                    if (CbxUtil.store.getBoolean(PreferenceConstants.P_ALWAYS_ANT_UI)) {
+                    else if (CbxUtil.store.getBoolean(PreferenceConstants.P_ALWAYS_ANT_UI) && !isSmartBuild) {
                         antUI = true;
                     }
                     if (antUI) {
@@ -112,7 +113,7 @@ public class RunBizAction implements IWorkbenchWindowActionDelegate {
                         }
                     }
 
-                    if (CbxUtil.store.getBoolean(PreferenceConstants.P_SMART_BUILD)) {
+                    if (CbxUtil.store.getBoolean(PreferenceConstants.P_ALWAYS_ANT_GENERAL) && isSmartBuild) {
                         final String generalChanged = GitUtil.getChangedString(CbxUtil.PATH_GENERAL_PROJECT);
                         if (!GitUtil.NOTHING_CHANGED.equals(generalChanged)) {
                             if (!CbxUtil.store.getString(PreferenceConstants.P_GENERAL_CHANGED).equals(generalChanged)) {
@@ -121,7 +122,7 @@ public class RunBizAction implements IWorkbenchWindowActionDelegate {
                             }
                         }
                     }
-                    if (CbxUtil.store.getBoolean(PreferenceConstants.P_ALWAYS_ANT_GENERAL)) {
+                    else if (CbxUtil.store.getBoolean(PreferenceConstants.P_ALWAYS_ANT_GENERAL) && !isSmartBuild) {
                         antGeneral = true;
                     }
 

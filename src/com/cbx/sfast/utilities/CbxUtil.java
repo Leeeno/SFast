@@ -5,9 +5,11 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -43,6 +46,11 @@ public class CbxUtil {
     public static String PATH_BUSINESS_PROJECT;
     public static String PATH_UI_PROJECT;
     public static String PATH_CORE_PROJECT;
+
+    public static final String NAME_GENERAL_PROJECT = "CBX_General";
+    public static final String NAME_BUSINESS_PROJECT = "CBX_Business";
+    public static final String NAME_UI_PROJECT = "CBX_UI";
+    public static final String NAME_CORE_PROJECT = "CBX_Core";
 
     public static final String PATH_GENERAL_LIB = "lib/runtime/";
     public static final String PATH_BUSINESS_LIB = "src/main/webapp/WEB-INF/lib/";
@@ -166,8 +174,7 @@ public class CbxUtil {
 
     public static String getLineInfo() {
         final StackTraceElement ste = new Throwable().getStackTrace()[1];
-        return ste.getMethodName() + "(" + ste.getFileName()
-                + ":" + ste.getLineNumber() + "):\t";
+        return ste.getMethodName() + "(" + ste.getFileName() + ":" + ste.getLineNumber() + "):\t";
     }
 
     public static String getTime() {
@@ -337,6 +344,18 @@ public class CbxUtil {
             out.write(doc);
             out.flush();
             out.close();
+            final BufferedReader read = new BufferedReader(new FileReader(file));
+            String fileContent = "";
+            String line = "";
+            while ((line = read.readLine()) != null) {
+                if (!StringUtils.isBlank(line)) {
+                    fileContent += line + "\r\n";
+                }
+            }
+            read.close();
+            final FileWriter fw = new FileWriter(file);
+            fw.write(fileContent);
+            fw.close();
         } catch (final IOException e) {
             e.printStackTrace();
         }
@@ -358,16 +377,16 @@ public class CbxUtil {
 
     public static void getProjectsPath() {
         for (final IProject project : projects) {
-            if ("CBX_General".equals(project.getName())) {
+            if (NAME_GENERAL_PROJECT.equals(project.getName())) {
                 PATH_GENERAL_PROJECT = project.getLocationURI().getPath() + "/";
                 PATH_GENERAL_PROJECT = PATH_GENERAL_PROJECT.substring(1);
-            } else if ("CBX_Business".equals(project.getName())) {
+            } else if (NAME_BUSINESS_PROJECT.equals(project.getName())) {
                 PATH_BUSINESS_PROJECT = project.getLocationURI().getPath() + "/";
                 PATH_BUSINESS_PROJECT = PATH_BUSINESS_PROJECT.substring(1);
-            } else if ("CBX_UI".equals(project.getName())) {
+            } else if (NAME_UI_PROJECT.equals(project.getName())) {
                 PATH_UI_PROJECT = project.getLocationURI().getPath() + "/";
                 PATH_UI_PROJECT = PATH_UI_PROJECT.substring(1);
-            } else if ("CBX_Core".equals(project.getName())) {
+            } else if (NAME_CORE_PROJECT.equals(project.getName())) {
                 PATH_CORE_PROJECT = project.getLocationURI().getPath() + "/";
                 PATH_CORE_PROJECT = PATH_CORE_PROJECT.substring(1);
             }

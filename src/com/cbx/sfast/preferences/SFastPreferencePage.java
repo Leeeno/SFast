@@ -8,6 +8,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import sfast.Activator;
 
+import com.cbx.sfast.utilities.CbxUtil;
 import com.cbx.sfast.utilities.MultiLineTextFieldEditor;
 
 /**
@@ -44,19 +45,24 @@ public class SFastPreferencePage extends FieldEditorPreferencePage implements IW
                 getFieldEditorParent()));
 
         addField(new BooleanFieldEditor(PreferenceConstants.P_SMART_BUILD, "自动感知", getFieldEditorParent()));
-        addField(new BooleanFieldEditor(PreferenceConstants.P_ALWAYS_ANT_GENERAL, "CBX_General", getFieldEditorParent()));
-        addField(new BooleanFieldEditor(PreferenceConstants.P_ALWAYS_ANT_UI, "CBX_UI", getFieldEditorParent()));
-        addField(new BooleanFieldEditor(PreferenceConstants.P_ALWAYS_ANT_CORE, "CBX_Core", getFieldEditorParent()));
+        addField(new BooleanFieldEditor(PreferenceConstants.P_ALWAYS_ANT_GENERAL, CbxUtil.NAME_GENERAL_PROJECT,
+                getFieldEditorParent()));
+        addField(new BooleanFieldEditor(PreferenceConstants.P_ALWAYS_ANT_UI, CbxUtil.NAME_UI_PROJECT,
+                getFieldEditorParent()));
+        addField(new BooleanFieldEditor(PreferenceConstants.P_ALWAYS_ANT_CORE, CbxUtil.NAME_CORE_PROJECT,
+                getFieldEditorParent()));
 
         addField(new RadioGroupFieldEditor(PreferenceConstants.P_FOR_LABEL, "Ant Core 之后将jar包复制到：", 1,
                 new String[][] {}, getFieldEditorParent()));
-        addField(new BooleanFieldEditor(PreferenceConstants.P_CORE_JAR_TO_UI, "CBX_UI", getFieldEditorParent()));
-        addField(new BooleanFieldEditor(PreferenceConstants.P_CORE_JAR_TO_GENERAL, "CBX_General",
+        addField(new BooleanFieldEditor(PreferenceConstants.P_CORE_JAR_TO_UI, CbxUtil.NAME_UI_PROJECT,
+                getFieldEditorParent()));
+        addField(new BooleanFieldEditor(PreferenceConstants.P_CORE_JAR_TO_GENERAL, CbxUtil.NAME_GENERAL_PROJECT,
                 getFieldEditorParent()));
 
         addField(new RadioGroupFieldEditor(PreferenceConstants.P_FOR_LABEL, "Ant UI 之后将jar包复制到：", 1, new String[][] {},
                 getFieldEditorParent()));
-        addField(new BooleanFieldEditor(PreferenceConstants.P_UI_JAR_TO_GENERAL, "CBX_General", getFieldEditorParent()));
+        addField(new BooleanFieldEditor(PreferenceConstants.P_UI_JAR_TO_GENERAL, CbxUtil.NAME_GENERAL_PROJECT,
+                getFieldEditorParent()));
     }
 
     @Override

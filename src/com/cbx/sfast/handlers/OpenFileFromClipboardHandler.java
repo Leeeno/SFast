@@ -1,4 +1,4 @@
-package com.cbx.sfast.actions;
+package com.cbx.sfast.handlers;
 
 import java.io.File;
 

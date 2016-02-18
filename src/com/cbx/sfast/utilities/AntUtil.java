@@ -17,7 +17,8 @@ public class AntUtil {
                 CbxUtil.showErrorMessageDialog(window.getShell(), "Error", "路径未找到");
                 return false;
             }
-            final Process ps = Runtime.getRuntime().exec(String.format(CMD_ANT_JAR_FORMAT, CbxUtil.PATH_GENERAL_PROJECT));
+            final Process ps = Runtime.getRuntime().exec(
+                    String.format(CMD_ANT_JAR_FORMAT, CbxUtil.PATH_GENERAL_PROJECT));
 
             final String msg = CbxUtil.convertInputStreamToString(ps.getInputStream());
             if (msg.contains("BUILD FAILED")) {
@@ -26,7 +27,7 @@ public class AntUtil {
             }
             final String errmsg = CbxUtil.convertInputStreamToString(ps.getErrorStream());
             if (!"".equals(errmsg) && errmsg != null) {
-                CbxUtil.errln(CbxUtil.getLineInfo() + errmsg);
+                CbxUtil.errln(CbxUtil.getLineInfo() + msg + "\n" + errmsg);
                 return false;
             }
 
@@ -36,14 +37,16 @@ public class AntUtil {
                 return false;
             }
 
-            final boolean isDelete = deleteFile(CbxUtil.PATH_BUSINESS_PROJECT + CbxUtil.PATH_BUSINESS_LIB, "cbx-general");
+            final boolean isDelete = deleteFile(CbxUtil.PATH_BUSINESS_PROJECT + CbxUtil.PATH_BUSINESS_LIB,
+                    "cbx-general");
 
             if (!isDelete) {
-                CbxUtil.showErrorMessageDialog(window.getShell(), "Error", "未能删除jar包");
+                CbxUtil.showErrorMessageDialog(window.getShell(), "Error", "未能删除biz的jar包");
                 return false;
             }
 
-            CbxUtil.copyFile(releaseJar, new File(CbxUtil.PATH_BUSINESS_PROJECT + CbxUtil.PATH_BUSINESS_LIB, releaseJar.getName()));
+            CbxUtil.copyFile(releaseJar,
+                    new File(CbxUtil.PATH_BUSINESS_PROJECT + CbxUtil.PATH_BUSINESS_LIB, releaseJar.getName()));
 
             CbxUtil.settleBuildPath();
         } catch (final Exception e) {
@@ -56,7 +59,8 @@ public class AntUtil {
     public static boolean antUI(final IWorkbenchWindow window) {
         try {
 
-            if (CbxUtil.PATH_BUSINESS_PROJECT == null || CbxUtil.PATH_GENERAL_PROJECT == null || CbxUtil.PATH_UI_PROJECT == null) {
+            if (CbxUtil.PATH_BUSINESS_PROJECT == null || CbxUtil.PATH_GENERAL_PROJECT == null
+                    || CbxUtil.PATH_UI_PROJECT == null) {
                 CbxUtil.showErrorMessageDialog(window.getShell(), "Error", "路径未找到");
                 return false;
             }
@@ -69,7 +73,7 @@ public class AntUtil {
             }
             final String errmsg = CbxUtil.convertInputStreamToString(ps.getErrorStream());
             if (!"".equals(errmsg) && errmsg != null) {
-                CbxUtil.errln(CbxUtil.getLineInfo() + errmsg);
+                CbxUtil.errln(CbxUtil.getLineInfo() + msg + "\n" + errmsg);
                 return false;
             }
 
@@ -80,15 +84,21 @@ public class AntUtil {
             }
 
             final boolean isDelete1 = deleteFile(CbxUtil.PATH_BUSINESS_PROJECT + CbxUtil.PATH_BUSINESS_LIB, "cbx-ui");
-            final boolean isDelete2 = deleteFile(CbxUtil.PATH_GENERAL_PROJECT + CbxUtil.PATH_GENERAL_LIB, "cbx-ui");
-            if (!(isDelete1 && isDelete2)) {
-                CbxUtil.showErrorMessageDialog(window.getShell(), "Error", "未能删除jar包");
+            if (!isDelete1) {
+                CbxUtil.showErrorMessageDialog(window.getShell(), "Error", "未能删除biz的jar包");
                 return false;
             }
             if (CbxUtil.store.getBoolean(PreferenceConstants.P_UI_JAR_TO_GENERAL)) {
-                CbxUtil.copyFile(releaseJar, new File(CbxUtil.PATH_GENERAL_PROJECT + CbxUtil.PATH_GENERAL_LIB, releaseJar.getName()));
+                final boolean isDelete2 = deleteFile(CbxUtil.PATH_GENERAL_PROJECT + CbxUtil.PATH_GENERAL_LIB, "cbx-ui");
+                if (!isDelete2) {
+                    CbxUtil.showErrorMessageDialog(window.getShell(), "Error", "未能删除general的jar包");
+                    return false;
+                }
+                CbxUtil.copyFile(releaseJar, new File(CbxUtil.PATH_GENERAL_PROJECT + CbxUtil.PATH_GENERAL_LIB,
+                        releaseJar.getName()));
             }
-            CbxUtil.copyFile(releaseJar, new File(CbxUtil.PATH_BUSINESS_PROJECT + CbxUtil.PATH_BUSINESS_LIB, releaseJar.getName()));
+            CbxUtil.copyFile(releaseJar,
+                    new File(CbxUtil.PATH_BUSINESS_PROJECT + CbxUtil.PATH_BUSINESS_LIB, releaseJar.getName()));
 
             CbxUtil.settleBuildPath();
         } catch (final Exception e) {
@@ -101,8 +111,8 @@ public class AntUtil {
     public static boolean antCore(final IWorkbenchWindow window) {
         try {
 
-            if (CbxUtil.PATH_BUSINESS_PROJECT == null || CbxUtil.PATH_GENERAL_PROJECT == null || CbxUtil.PATH_UI_PROJECT == null
-                    || CbxUtil.PATH_CORE_PROJECT == null) {
+            if (CbxUtil.PATH_BUSINESS_PROJECT == null || CbxUtil.PATH_GENERAL_PROJECT == null
+                    || CbxUtil.PATH_UI_PROJECT == null || CbxUtil.PATH_CORE_PROJECT == null) {
                 CbxUtil.showErrorMessageDialog(window.getShell(), "Error", "路径未找到");
                 return false;
             }
@@ -115,7 +125,7 @@ public class AntUtil {
             }
             final String errmsg = CbxUtil.convertInputStreamToString(ps.getErrorStream());
             if (!"".equals(errmsg) && errmsg != null) {
-                CbxUtil.errln(CbxUtil.getLineInfo() + errmsg);
+                CbxUtil.errln(CbxUtil.getLineInfo() + msg + "\n" + errmsg);
                 return false;
             }
 
@@ -126,21 +136,34 @@ public class AntUtil {
             }
 
             final boolean isDelete1 = deleteFile(CbxUtil.PATH_BUSINESS_PROJECT + CbxUtil.PATH_BUSINESS_LIB, "cbx-core");
-            final boolean isDelete2 = deleteFile(CbxUtil.PATH_GENERAL_PROJECT + CbxUtil.PATH_GENERAL_LIB, "cbx-core");
-            final boolean isDelete3 = deleteFile(CbxUtil.PATH_UI_PROJECT + CbxUtil.PATH_UI_LIB, "cbx-core");
-            if (!(isDelete1 && isDelete2 && isDelete3)) {
-                CbxUtil.showErrorMessageDialog(window.getShell(), "Error", "未能删除jar包");
+            if (!isDelete1) {
+                CbxUtil.showErrorMessageDialog(window.getShell(), "Error", "未能删除biz的jar包");
                 return false;
             }
 
             if (CbxUtil.store.getBoolean(PreferenceConstants.P_CORE_JAR_TO_UI)) {
-                CbxUtil.copyFile(releaseJar, new File(CbxUtil.PATH_UI_PROJECT + CbxUtil.PATH_UI_LIB, releaseJar.getName()));
+                final boolean isDelete2 = deleteFile(CbxUtil.PATH_UI_PROJECT + CbxUtil.PATH_UI_LIB, "cbx-core");
+                if (!isDelete2) {
+                    CbxUtil.showErrorMessageDialog(window.getShell(), "Error", "未能删除ui的jar包");
+                    return false;
+                }
+                CbxUtil.copyFile(releaseJar,
+                        new File(CbxUtil.PATH_UI_PROJECT + CbxUtil.PATH_UI_LIB, releaseJar.getName()));
             }
 
             if (CbxUtil.store.getBoolean(PreferenceConstants.P_CORE_JAR_TO_GENERAL)) {
-                CbxUtil.copyFile(releaseJar, new File(CbxUtil.PATH_GENERAL_PROJECT + CbxUtil.PATH_GENERAL_LIB, releaseJar.getName()));
+                final boolean isDelete3 = deleteFile(CbxUtil.PATH_GENERAL_PROJECT + CbxUtil.PATH_GENERAL_LIB,
+                        "cbx-core");
+                if (!isDelete3) {
+                    CbxUtil.showErrorMessageDialog(window.getShell(), "Error", "未能删除general的jar包");
+                    return false;
+                }
+                CbxUtil.copyFile(releaseJar, new File(CbxUtil.PATH_GENERAL_PROJECT + CbxUtil.PATH_GENERAL_LIB,
+                        releaseJar.getName()));
             }
-            CbxUtil.copyFile(releaseJar, new File(CbxUtil.PATH_BUSINESS_PROJECT + CbxUtil.PATH_BUSINESS_LIB, releaseJar.getName()));
+
+            CbxUtil.copyFile(releaseJar,
+                    new File(CbxUtil.PATH_BUSINESS_PROJECT + CbxUtil.PATH_BUSINESS_LIB, releaseJar.getName()));
 
             CbxUtil.settleBuildPath();
         } catch (final Exception e) {
@@ -191,6 +214,5 @@ public class AntUtil {
         }
         return true;
     }
-
 
 }

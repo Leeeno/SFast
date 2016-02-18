@@ -92,7 +92,7 @@ public class CSSUtil {
         }
     }
 
-    private static void goToLine(final IEditorPart editorPart, final int lineNumber) {
+    public static void goToLine(final IEditorPart editorPart, final int lineNumber) {
         if (!(editorPart instanceof ITextEditor) || lineNumber <= 0) {
             return;
         }
