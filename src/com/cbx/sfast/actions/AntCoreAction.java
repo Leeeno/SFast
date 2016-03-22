@@ -44,8 +44,9 @@ public class AntCoreAction implements IWorkbenchWindowActionDelegate {
 
                 try {
                     CbxUtil.logln("线程" + Thread.currentThread().getName() + "开始运行");
-                    AntUtil.antCore(window);
-
+                    if (!AntUtil.antCore(window, true)) {
+                        CbxUtil.errln(CbxUtil.getLineInfo() + "ant core failed");
+                    }
                     CbxUtil.logln("线程" + Thread.currentThread().getName() + "结束运行");
                 } catch (final Exception e) {
                     CbxUtil.errln(CbxUtil.getLineInfo() + e.getMessage());

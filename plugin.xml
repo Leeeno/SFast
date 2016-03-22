@@ -128,25 +128,25 @@
 <!-- open in explorer -->
       <handler
             commandId="com.cbx.sfast.actions.commands.openInExplorerCommand"
-            class="com.cbx.sfast.actions.OpenExplorerHandler">
+            class="com.cbx.sfast.handlers.OpenExplorerHandler">
       </handler>
 
 <!-- open file from clipboard -->
       <handler
             commandId="com.cbx.sfast.actions.commands.openFileFromClipboardCommand"
-            class="com.cbx.sfast.actions.OpenFileFromClipboardHandler">
+            class="com.cbx.sfast.handlers.OpenFileFromClipboardHandler">
       </handler>
 
 <!-- open in terminal -->
       <handler
             commandId="com.cbx.sfast.actions.commands.openInTerminalCommand"
-            class="com.cbx.sfast.actions.OpenTerminalHandler">
+            class="com.cbx.sfast.handlers.OpenTerminalHandler">
       </handler>
 
 <!-- backup changed -->
       <handler
             commandId="com.cbx.sfast.actions.commands.backupChangedCommand"
-            class="com.cbx.sfast.actions.BackupChangedHandler">
+            class="com.cbx.sfast.handlers.BackupChangedHandler">
       </handler>
    </extension>
    <extension

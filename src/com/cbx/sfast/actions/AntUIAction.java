@@ -44,8 +44,9 @@ public class AntUIAction implements IWorkbenchWindowActionDelegate {
 
                 try {
                     CbxUtil.logln("线程" + Thread.currentThread().getName() + "开始运行");
-                    AntUtil.antUI(window);
-
+                    if (!AntUtil.antUI(window, true)) {
+                        CbxUtil.errln(CbxUtil.getLineInfo() + "ant ui failed");
+                    }
                     CbxUtil.logln("线程" + Thread.currentThread().getName() + "结束运行");
                 } catch (final Exception e) {
                     CbxUtil.errln(CbxUtil.getLineInfo() + e.getMessage());

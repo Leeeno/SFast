@@ -3,6 +3,7 @@ package com.cbx.sfast.handlers;
 import java.io.File;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -46,7 +47,8 @@ public class BackupChangedHandler extends AbstractHandler {
                 resource = ((JavaProject) obj).getResource();
                 path = resource.getLocation().toOSString();
             }
-            if (path != null) {
+            CbxUtil.logln("Backup path:\t" + path);
+            if (StringUtils.isNotBlank(path)) {
                 try {
                     final List<File> changedFileList = GitUtil.getChangedFileList(path);
                     final String lastPath = CbxUtil.store.getString(PreferenceConstants.P_BACKUP_PATH);
@@ -54,11 +56,19 @@ public class BackupChangedHandler extends AbstractHandler {
                     final DirectoryDialog directory = new DirectoryDialog(activeShell);
                     directory.setFilterPath(lastPath);
                     final String savePath = directory.open();
-                    if(savePath != null) {
+                    if (savePath != null) {
                         CbxUtil.store.setValue(PreferenceConstants.P_BACKUP_PATH, savePath);
+
                         for (final File file : changedFileList) {
+                            if (isExclude(file)) {
+                                continue;
+                            }
                             final File toFile = new File(savePath + "\\" + file.getName());
+                            final File toFile2 = new File(savePath + "\\" + getRelativePath(path, file));
+                            backupOldFile(toFile);
+                            backupOldFile(toFile2);
                             CbxUtil.copyFile(file, toFile);
+                            CbxUtil.copyFile(file, toFile2);
                         }
                     }
                 } catch (final Exception e) {
@@ -68,5 +78,58 @@ public class BackupChangedHandler extends AbstractHandler {
 
         }
         return null;
+    }
+
+    /**
+     * @param toFile
+     * @throws Exception
+     */
+    private void backupOldFile(final File file) throws Exception {
+        if (file.exists()) {
+            CbxUtil.copyFile(file, new File(file.getAbsolutePath() + "-bak-" + System.currentTimeMillis()));
+        }
+    }
+
+    /**
+     * @param file
+     * @return
+     */
+    private boolean isExclude(final File file) {
+        final String fileName = file.getName();
+        final String strRules = CbxUtil.store.getString(PreferenceConstants.P_BACKUP_EXCLUDE);
+        final String[] rules = strRules.split("\\|");
+        if (rules.length > 0) {
+            for (final String rule : rules) {
+                if (rule.length() < 2) {
+                    continue;
+                }
+                final String ru = rule.substring(1);
+                if (rule.startsWith("<") && StringUtils.startsWithIgnoreCase(fileName, ru)) {
+                    return true;
+                } else if (rule.startsWith(">") && StringUtils.endsWithIgnoreCase(fileName, ru)) {
+                    return true;
+                } else if (rule.startsWith(":") && StringUtils.equalsIgnoreCase(fileName, ru)) {
+                    return true;
+                } else if (rule.startsWith("?") && StringUtils.containsIgnoreCase(fileName, ru)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param path
+     * @param file
+     * @return
+     */
+    private String getRelativePath(final String path, final File file) {
+        final String[] projectPath = path.split("\\\\");
+        final String projectName = projectPath[projectPath.length - 1];
+        final String[] paths = file.getAbsolutePath().split(projectName);
+        if (paths.length > 1) {
+            return projectName + paths[1];
+        }
+        return file.getAbsolutePath().split(":")[1];
     }
 }

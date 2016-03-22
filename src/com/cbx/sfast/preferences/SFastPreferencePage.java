@@ -3,6 +3,7 @@ package com.cbx.sfast.preferences;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
+import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
@@ -36,6 +37,7 @@ public class SFastPreferencePage extends FieldEditorPreferencePage implements IW
     public void createFieldEditors() {
         // addField(new DirectoryFieldEditor(PreferenceConstants.P_PATH,
         // "&Directory preference:", getFieldEditorParent()));
+        addField(new StringFieldEditor(PreferenceConstants.P_CMD, "命令行程序(CMD或路径)：", getFieldEditorParent()));
         addField(new BooleanFieldEditor(PreferenceConstants.P_REWRITE_JETTY_CMD, "重写 jetty.debug.cmd",
                 getFieldEditorParent()));
         //
@@ -63,6 +65,11 @@ public class SFastPreferencePage extends FieldEditorPreferencePage implements IW
                 getFieldEditorParent()));
         addField(new BooleanFieldEditor(PreferenceConstants.P_UI_JAR_TO_GENERAL, CbxUtil.NAME_GENERAL_PROJECT,
                 getFieldEditorParent()));
+        final StringFieldEditor sfeBackupExclude = new StringFieldEditor(PreferenceConstants.P_BACKUP_EXCLUDE,
+                "备份时排除：", getFieldEditorParent());
+        sfeBackupExclude.getLabelControl(getFieldEditorParent()).setToolTipText(
+                "使用|分隔多个条件，<表示startsWith，>表示endsWith，?表示contains，:表示equals识别空格。例如：>.jar|?snapshot");
+        addField(sfeBackupExclude);
     }
 
     @Override

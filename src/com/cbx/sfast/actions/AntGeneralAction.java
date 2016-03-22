@@ -44,8 +44,9 @@ public class AntGeneralAction implements IWorkbenchWindowActionDelegate {
 
                 try {
                     CbxUtil.logln("线程" + Thread.currentThread().getName() + "开始运行");
-                    AntUtil.antGeneral(window);
-
+                    if (!AntUtil.antGeneral(window, true)) {
+                        CbxUtil.errln(CbxUtil.getLineInfo() + "ant general failed");
+                    }
                     CbxUtil.logln("线程" + Thread.currentThread().getName() + "结束运行");
                 } catch (final Exception e) {
                     CbxUtil.errln(CbxUtil.getLineInfo() + e.getMessage());

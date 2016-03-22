@@ -29,7 +29,9 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.console.ConsolePlugin;
@@ -39,6 +41,8 @@ import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 import sfast.Activator;
+
+import com.cbx.sfast.preferences.PreferenceConstants;
 
 public class CbxUtil {
 
@@ -73,10 +77,11 @@ public class CbxUtil {
     }
 
     private static final String CMD_JETTY_WITH_CONEMU = "cmd /c cd " + PATH_BUSINESS_PROJECT
-            + " & D:/Software/ConEmu/ConEmu64.exe jetty-debug.cmd";
+            + " & " + store.getString(PreferenceConstants.P_CMD) + " jetty-debug.cmd";
 
     public static void runBiz() throws IOException {
         // log("exec:\t" + "cmd /c cd " + _bizpath + " & start jetty-debug.cmd");
+        // CbxUtil.log(CMD_JETTY_WITH_CONEMU);
         Runtime.getRuntime().exec(CMD_JETTY_WITH_CONEMU);
         settleBuildPath();
     }
@@ -108,8 +113,9 @@ public class CbxUtil {
                 return (MessageConsole) existing[i];
             }
         }
-
+        final Font consoleFont = new Font(Display.getDefault(), "Consolas", 10, SWT.NONE);
         final MessageConsole myConsole = new MessageConsole("SFast console", null);
+        myConsole.setFont(consoleFont);
         conMan.addConsoles(new IConsole[] {myConsole});
         return myConsole;
     }
@@ -219,6 +225,7 @@ public class CbxUtil {
 
         logln("copy file: " + f1.getAbsolutePath() + " to " + f2.getAbsolutePath());
         final InputStream inStream = new FileInputStream(f1);
+        f2.getParentFile().mkdirs();
         final FileOutputStream fs = new FileOutputStream(f2);
         final byte[] buffer = new byte[1444];
         while ((byteread = inStream.read(buffer)) != -1) {

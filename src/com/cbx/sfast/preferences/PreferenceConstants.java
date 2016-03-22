@@ -6,6 +6,7 @@ package com.cbx.sfast.preferences;
 public class PreferenceConstants {
 
 	public static final String P_REWRITE_JETTY_CMD = "rewriteJettyCmd";
+    public static final String P_CMD = "cmd";
 
 	public static final String P_JETTY_SCRIPT = "jettyScript";
 
@@ -25,4 +26,5 @@ public class PreferenceConstants {
 	public static final String P_CORE_CHANGED = "coreChanged";
 
     public static final String P_BACKUP_PATH = "backupPath";
+    public static final String P_BACKUP_EXCLUDE = "backupExclude";
 }

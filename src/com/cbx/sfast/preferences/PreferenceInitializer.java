@@ -28,6 +28,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
         store.setDefault(PreferenceConstants.P_GENERAL_CHANGED, "0");
         store.setDefault(PreferenceConstants.P_UI_CHANGED, "0");
         store.setDefault(PreferenceConstants.P_CORE_CHANGED, "0");
+        store.setDefault(PreferenceConstants.P_CMD, "cmd");
 
 
         store.setDefault(PreferenceConstants.P_BACKUP_PATH, "c:\\");
